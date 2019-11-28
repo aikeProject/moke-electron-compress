@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="theme-color" content="#000000"/>
+    <link rel="stylesheet" href="./index.css">
+    <title>moke-electron-compress</title>
+
+</head>
+<body>
+<div class="background-drop">
+    <div class="background-drop-text">
+        <div>将图片(.png|.jpg)拖拽到此处、点击选择</div>
+    </div>
+</div>
+<ul id="list-group" class="list-group list-group-flush"></ul>
+<div class="footer">
+    <div class="footer-fixed">
+        <button id="setting" type="button" class="btn btn-primary">设置</button>
+        <button id="compress" type="button" class="btn btn-success">压缩</button>
+    </div>
+</div>
+<label id="select-files" style="display: none;">
+    <input type="file" multiple accept="image/jpeg,image/png,image/jpg">
+</label>
+</body>
+<script src="./renderer.js"></script>
+</html>
