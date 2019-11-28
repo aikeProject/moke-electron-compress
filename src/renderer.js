@@ -232,3 +232,7 @@ function handleDragover(e) {
 document.addEventListener('dragenter', handleDragover, false);
 document.addEventListener('dragover', handleDragover, false);
 document.addEventListener('drop', handleDrop, false);
+
+document.querySelector('#setting').addEventListener('click', () => {
+   ipcRenderer.send('open-settings-window');
+});

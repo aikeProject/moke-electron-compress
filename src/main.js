@@ -14,14 +14,14 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
     app.quit();
 }
 
-let mainWindow;
+let mainWindow, settingsWindow;
 
 const createWindow = () => {
     // Create the browser window.
     mainWindow = new AppWindow({
         width: 300,
         height: 600,
-    }, `file://${path.join(__dirname, './index.html')}`);
+    }, `file://${path.join(__dirname, './render/index.html')}`);
 
     // Open the DevTools.
     dev && mainWindow.webContents.openDevTools();
@@ -33,6 +33,23 @@ const createWindow = () => {
         // when you should delete the corresponding element.
         mainWindow = null;
     });
+
+    ipcMain.on('open-settings-window', () => {
+        const settingsWindowConfig = {
+            width: 500,
+            height: 400,
+            parent: mainWindow
+        };
+        const settingsFileLocation = `file://${path.join(__dirname, './render/settings.html')}`;
+
+        settingsWindow = new AppWindow(settingsWindowConfig, settingsFileLocation);
+        settingsWindow.removeMenu();
+
+        settingsWindow.on('closed', () => {
+            settingsWindow = null
+        });
+    });
+
 };
 
 // This method will be called when Electron has finished
