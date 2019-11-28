@@ -15,7 +15,7 @@ document.querySelector('#select').addEventListener('click', () => {
         properties: ['openDirectory'],
         message: '选择压缩图片存储路径'
     }).then(({ filePaths }) => {
-        document.querySelector('#outPath').value = filePaths[0]
+        document.querySelector('#outPath').value = filePaths[0] || ''
     });
 
 });
