@@ -1,1 +1,10 @@
+.setting {
+    padding: 20px;
+}
 
+.select-file {
+    display: flex;
+    align-items: flex-end;
+    margin-bottom: 1em;
+    margin-left: 5px;
+}

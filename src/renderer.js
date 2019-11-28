@@ -19,6 +19,11 @@ console.log(`👋 electron version ${versionElectron}`);
 let filesMap = {};
 let compressing = false;
 
+// 默认保存到桌面
+let outPath = remote.app.getPath('desktop');
+// 默认压缩质量
+let quality = 70;
+
 const flattenArr = (arr) => {
     return arr.reduce((map, item) => {
         map[item.id] = item;
@@ -56,10 +61,7 @@ function filterSource(source) {
         error: false
     }));
 
-    filesMap = {
-        ...filesMap,
-        ...flattenArr(files)
-    };
+    filesMap = flattenArr(files);
 
     return filesMap
 }
@@ -101,14 +103,6 @@ function render(files) {
     // 按钮状态
     compressBtn()
 }
-
-document.querySelector('.background-drop').addEventListener('click', () => {
-    document.querySelector('#select-files').click();
-    document.querySelector('#select-files').addEventListener('change', (e) => {
-        const files = filterSource(e.target.files);
-        render(files);
-    })
-});
 
 function compressInfo(file) {
     return (info) => {
@@ -157,9 +151,9 @@ function compress(files) {
     if (compressing) return;
     compressing = true;
 
-    const desktop = remote.app.getPath('desktop');
+    const desktop = outPath;
     const defaultOpt = {
-        quality: 50,
+        quality: quality,
         chromaSubsampling: '4:4:4'
     };
     files = objToArr(files);
@@ -203,17 +197,6 @@ function compress(files) {
 
 }
 
-document.querySelector('#compress').addEventListener('click', () => {
-
-    Object.values(filesMap).forEach(file => {
-        filesMap[file.id] = {...file, compress: true}
-    });
-
-    render(filesMap);
-
-    compress(filesMap)
-});
-
 function handleDrop(e) {
     e.stopPropagation();
     e.preventDefault();
@@ -233,6 +216,30 @@ document.addEventListener('dragenter', handleDragover, false);
 document.addEventListener('dragover', handleDragover, false);
 document.addEventListener('drop', handleDrop, false);
 
+document.querySelector('.background-drop').addEventListener('click', () => {
+    document.querySelector('#select-files').click();
+    document.querySelector('#select-files').addEventListener('change', (e) => {
+        const files = filterSource(e.target.files);
+        render(files);
+    })
+});
+
 document.querySelector('#setting').addEventListener('click', () => {
-   ipcRenderer.send('open-settings-window');
+    ipcRenderer.send('open-settings-window');
+});
+
+ipcRenderer.on('settings', (event, args) => {
+    quality = Number(args.quality) || quality;
+    outPath = args.outPath || outPath;
+});
+
+document.querySelector('#compress').addEventListener('click', () => {
+
+    Object.values(filesMap).forEach(file => {
+        filesMap[file.id] = {...file, compress: true, done: false, error: false, compressSize: null}
+    });
+
+    render(filesMap);
+
+    compress(filesMap)
 });

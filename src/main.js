@@ -19,8 +19,8 @@ let mainWindow, settingsWindow;
 const createWindow = () => {
     // Create the browser window.
     mainWindow = new AppWindow({
-        width: 300,
-        height: 600,
+        // width: 300,
+        // height: 600,
     }, `file://${path.join(__dirname, './render/index.html')}`);
 
     // Open the DevTools.
@@ -72,4 +72,8 @@ app.on('activate', () => {
     if (mainWindow === null) {
         createWindow();
     }
+});
+
+ipcMain.on('settings', (event, args) => {
+    mainWindow.webContents.send('settings', args)
 });

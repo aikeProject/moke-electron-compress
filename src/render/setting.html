@@ -10,10 +10,10 @@
 
 </head>
 <body>
-<form>
+<form class="setting">
     <div class="form-group">
-        <label for="quality">图片压缩质量</label>
-        <select id="quality" class="form-control form-control-sm">
+        <label for="quality" class="col-form-label-sm">图片压缩质量</label>
+        <select id="quality" class="form-control form-control-sm" style="width: 200px;">
             <option value="10">10</option>
             <option value="20">20</option>
             <option value="30">30</option>
@@ -25,10 +25,16 @@
             <option value="90">90</option>
         </select>
     </div>
-    <div class="form-group">
-        <label for="outPath">Email address</label>
-        <input type="text" class="form-control form-control-sm" id="outPath" placeholder="输出路径">
+    <div class="form-row">
+        <div class="form-group" style="flex: 1;">
+            <label for="outPath" class="col-form-label-sm">压缩图片输出路径</label>
+            <input readonly disabled type="text" class="form-control form-control-sm" id="outPath" placeholder="请选择压缩图片输出路径">
+        </div>
+        <div class="select-file">
+            <button id="select" type="button" class="btn btn-primary btn-sm">选择文件</button>
+        </div>
     </div>
+    <button id="settingSave" type="button" class="btn btn-success btn-sm">确定</button>
 </form>
 </body>
 <script src="../setting.js"></script>
