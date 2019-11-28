@@ -40,7 +40,7 @@ const createWindow = () => {
             height: 400,
             parent: mainWindow
         };
-        const settingsFileLocation = `file://${path.join(__dirname, './render/settings.html')}`;
+        const settingsFileLocation = `file://${path.join(__dirname, './render/setting.html')}`;
 
         settingsWindow = new AppWindow(settingsWindowConfig, settingsFileLocation);
         settingsWindow.removeMenu();

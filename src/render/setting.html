@@ -4,26 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta name="theme-color" content="#000000"/>
-    <link rel="stylesheet" href="../styles/index.css">
+    <link rel="stylesheet" href="../styles/bootstrap.css">
+    <link rel="stylesheet" href="../styles/setting.css">
     <title>setting</title>
 
 </head>
 <body>
-<div class="background-drop">
-    <div class="background-drop-text">
-        <div>将图片(.png|.jpg)拖拽到此处、点击选择</div>
+<form>
+    <div class="form-group">
+        <label for="quality">图片压缩质量</label>
+        <select id="quality" class="form-control form-control-sm">
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="30">30</option>
+            <option value="40">40</option>
+            <option value="50">50</option>
+            <option value="60">60</option>
+            <option value="70" selected>70</option>
+            <option value="80">80</option>
+            <option value="90">90</option>
+        </select>
     </div>
-</div>
-<ul id="list-group" class="list-group list-group-flush"></ul>
-<div class="footer">
-    <div class="footer-fixed">
-        <button id="setting" type="button" class="btn btn-primary">设置</button>
-        <button id="compress" type="button" class="btn btn-success">压缩</button>
+    <div class="form-group">
+        <label for="outPath">Email address</label>
+        <input type="text" class="form-control form-control-sm" id="outPath" placeholder="输出路径">
     </div>
-</div>
-<label id="select-files" style="display: none;">
-    <input type="file" multiple accept="image/jpeg,image/png,image/jpg">
-</label>
+</form>
 </body>
-<script src="../renderer.js"></script>
+<script src="../setting.js"></script>
 </html>
