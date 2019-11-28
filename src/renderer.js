@@ -148,6 +148,7 @@ function compressBtn() {
 
 function compress(files) {
 
+    if (!files.length) return;
     if (compressing) return;
     compressing = true;
 
@@ -157,8 +158,6 @@ function compress(files) {
         chromaSubsampling: '4:4:4'
     };
     files = objToArr(files);
-
-    if (!files.length) return;
 
     files.map(file => {
         let fileData = sharp(file.path);
