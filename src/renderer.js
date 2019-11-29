@@ -8,6 +8,7 @@ const {ipcRenderer, remote} = require('electron');
 const path = require('path');
 const sharp = require('sharp');
 const uuidV4 = require('uuid/v4');
+const mkdirp = require('mkdirp');
 
 const versionNode = process.versions.node;
 const versionElectron = process.versions.electron;
@@ -21,6 +22,8 @@ let compressing = false;
 
 // 默认保存到桌面
 let outPath = remote.app.getPath('desktop');
+// 默认输出到此文件夹
+const defaultOutDir = 'moke-compress';
 // 默认压缩质量
 let quality = 70;
 
@@ -152,7 +155,6 @@ function compress(files) {
     if (compressing) return;
     compressing = true;
 
-    const desktop = outPath;
     const defaultOpt = {
         quality: quality,
         chromaSubsampling: '4:4:4'
@@ -166,25 +168,27 @@ function compress(files) {
 
         if (!type) return;
 
+        const out = path.join(outPath, defaultOutDir, file.name);
+
         switch (type) {
             case "png":
-                fileData = fileData
+                fileData
                     .png(defaultOpt)
-                    .toFile(path.join(desktop, file.name))
+                    .toFile(out)
                     .then(compressInfo(file))
                     .catch(compressError(file));
                 break;
             case "jpg":
-                fileData = fileData
+                fileData
                     .jpg(defaultOpt)
-                    .toFile(path.join(desktop, file.name))
+                    .toFile(out)
                     .then(compressInfo(file))
                     .catch(compressError(file));
                 break;
             case "jpeg":
                 fileData
                     .jpeg(defaultOpt)
-                    .toFile(path.join(desktop, file.name))
+                    .toFile(out)
                     .then(compressInfo(file))
                     .catch(compressError(file));
                 break;
@@ -239,6 +243,9 @@ document.querySelector('#compress').addEventListener('click', () => {
     });
 
     render(filesMap);
+
+    const out = path.join(outPath, defaultOutDir);
+    mkdirp.sync(out);
 
     compress(filesMap)
 });

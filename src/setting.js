@@ -6,8 +6,6 @@
 
 const { ipcRenderer, remote } = require('electron');
 
-let parent = '';
-
 document.querySelector('#select').addEventListener('click', () => {
 
     remote.dialog.showOpenDialog({
