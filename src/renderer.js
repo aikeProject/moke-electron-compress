@@ -27,7 +27,7 @@ const defaultOutDir = 'moke-compress';
 // 默认压缩质量
 let quality = 70;
 // 是否压缩
-let noCompress = true;
+let noCompress = false;
 // 分组压缩 默认 6
 let chunkCount = 6;
 // resize width height
@@ -168,7 +168,6 @@ function compressError(file, reject) {
         };
         compressing = false;
 
-        console.log(file);
         console.log('error...', file.name);
 
         render(filesMap);
@@ -188,6 +187,7 @@ function compressBtn() {
 
 // 重试
 let timeout = null;
+
 function compressRetry(id) {
     const file = filesMap[id];
     filesMap[id] = {...file, compress: true, done: false, error: false, compressSize: null};
@@ -216,7 +216,7 @@ function compressOne(file) {
 
         const out = path.join(outPath, defaultOutDir, file.name);
 
-        if (noCompress) {
+        if (!noCompress) {
             switch (type) {
                 case "png":
                     fileData = fileData
@@ -250,9 +250,26 @@ function compressOne(file) {
 function compress(files) {
 
     files = objToArr(files);
+
     if (!files.length) return;
     if (compressing) return;
+    if (noCompress && !resizeWidth && !resizeHeight) {
+        remote.dialog.showErrorBox('提示', '请正确设置压缩选项');
+        return;
+    }
     compressing = true;
+
+    Object.values(filesMap).forEach(file => {
+        filesMap[file.id] = {
+            ...file,
+            compress: true,
+            done: false,
+            error: false,
+            compressSize: null
+        }
+    });
+
+    render(filesMap);
 
     const chunks = chunk(files, chunkCount);
 
@@ -268,7 +285,9 @@ function compress(files) {
                 return compressOne(file)
             });
 
-            Promise.all(runChunk).then(() => {
+            // allSettled 只有等到所有这些参数实例都返回结果
+            // 不管是fulfilled还是rejected，包装实例才会结束
+            Promise.allSettled(runChunk).then(() => {
                 a++;
                 console.log('done chunk.....' + a);
                 fn();
@@ -319,14 +338,13 @@ ipcRenderer.on('settings', (event, args) => {
 });
 
 document.querySelector('#compress').addEventListener('click', () => {
-
-    Object.values(filesMap).forEach(file => {
-        filesMap[file.id] = {...file, compress: true, done: false, error: false, compressSize: null}
-    });
-
-    render(filesMap);
-
     const out = path.join(outPath, defaultOutDir);
     mkdirp.sync(out);
+
+    console.log('------ 压缩配置 ------');
+    console.log('压缩质量: ', quality);
+    console.log('调整大小resize: ', `${resizeWidth} x ${resizeHeight}`);
+    console.log('------ 压缩配置 ------');
+
     compress(filesMap)
 });
