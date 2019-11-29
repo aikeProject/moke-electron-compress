@@ -5,7 +5,7 @@
  */
 
 const {ipcRenderer, remote} = require('electron');
-const {serializeArray} = require('../util.js');
+const {serializeArray} = require('./util.js');
 
 document.querySelector('#select').addEventListener('click', () => {
 

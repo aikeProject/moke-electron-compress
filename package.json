@@ -5,6 +5,7 @@
   "main": "src/main.js",
   "scripts": {
     "dev": "nodemon --watch src --exec \"electron . --debug\"",
+    "build": "webpack",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -15,13 +16,28 @@
   "author": "成雨",
   "license": "ISC",
   "devDependencies": {
+    "@babel/core": "^7.7.4",
+    "@babel/preset-env": "^7.7.4",
+    "babel-loader": "^8.0.6",
+    "babel-plugin-syntax-dynamic-import": "^6.18.0",
+    "css-loader": "^3.2.0",
     "electron": "^7.1.2",
     "electron-is-dev": "^1.1.0",
     "electron-squirrel-startup": "^1.0.0",
+    "html-webpack-plugin": "^3.2.0",
+    "less": "^3.10.3",
+    "less-loader": "^5.0.0",
     "mkdirp": "^0.5.1",
+    "node-loader": "^0.6.0",
     "nodemon": "^2.0.1",
     "sharp": "^0.23.3",
-    "uuid": "^3.3.3"
+    "style-loader": "^1.0.1",
+    "uuid": "^3.3.3",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.10",
+    "webpack-dev-server": "^3.9.0",
+    "webpack-filter-warnings-plugin": "^1.2.1",
+    "webpack-merge": "^4.2.2"
   },
   "dependencies": {}
 }
