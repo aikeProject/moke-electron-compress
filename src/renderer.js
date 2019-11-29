@@ -26,6 +26,8 @@ let outPath = remote.app.getPath('desktop');
 const defaultOutDir = 'moke-compress';
 // 默认压缩质量
 let quality = 70;
+// 分组压缩 默认 6
+let chunkCount = 6;
 
 const flattenArr = (arr) => {
     return arr.reduce((map, item) => {
@@ -36,6 +38,12 @@ const flattenArr = (arr) => {
 
 const objToArr = (obj) => {
     return Object.keys(obj).map(key => obj[key]);
+};
+
+const chunk = (arr, size) => {
+    return Array.from({length: Math.ceil(arr.length / size)}, (v, i) =>
+        arr.slice(i * size, i * size + size)
+    );
 };
 
 function flattenSize(size) {
@@ -87,8 +95,6 @@ function render(files) {
             file.done ? '' : 'bg-warning';
         const progress = `progress-bar ${done} ${pending}`;
 
-        console.log('file', file);
-
         str += `<li class="list-group-item">
                     <div class="name ellipsis">${file.name}</div>
                     <div class="size">
@@ -107,7 +113,7 @@ function render(files) {
     compressBtn()
 }
 
-function compressInfo(file) {
+function compressInfo(file, resolve) {
     return (info) => {
         filesMap = {
             ...filesMap,
@@ -121,11 +127,16 @@ function compressInfo(file) {
 
         compressing = compressDone();
 
+        console.log(file.name);
+        console.log('done...');
+
         render(filesMap);
+
+        resolve(filesMap);
     }
 }
 
-function compressError(file) {
+function compressError(file, reject) {
     return (err) => {
         filesMap = {
             ...filesMap,
@@ -135,7 +146,12 @@ function compressError(file) {
             }
         };
         compressing = false;
+
+        console.log(file);
+        console.log('error...', file.name);
+
         render(filesMap);
+        reject(err)
     }
 }
 
@@ -149,19 +165,14 @@ function compressBtn() {
     else compress.removeAttribute('disabled')
 }
 
-function compress(files) {
-
-    if (!files.length) return;
-    if (compressing) return;
-    compressing = true;
+function compressOne(file) {
 
     const defaultOpt = {
         quality: quality,
         chromaSubsampling: '4:4:4'
     };
-    files = objToArr(files);
 
-    files.map(file => {
+    return new Promise((resolve, reject) => {
         let fileData = sharp(file.path);
 
         const type = file.type;
@@ -172,32 +183,58 @@ function compress(files) {
 
         switch (type) {
             case "png":
-                fileData
-                    .png(defaultOpt)
-                    .toFile(out)
-                    .then(compressInfo(file))
-                    .catch(compressError(file));
+                fileData = fileData
+                    .png(defaultOpt);
                 break;
             case "jpg":
-                fileData
-                    .jpg(defaultOpt)
-                    .toFile(out)
-                    .then(compressInfo(file))
-                    .catch(compressError(file));
+                fileData = fileData
+                    .jpg(defaultOpt);
                 break;
             case "jpeg":
-                fileData
-                    .jpeg(defaultOpt)
-                    .toFile(out)
-                    .then(compressInfo(file))
-                    .catch(compressError(file));
+                fileData = fileData
+                    .jpeg(defaultOpt);
                 break;
             default:
                 break;
         }
 
+        fileData
+            .toFile(out)
+            .then(compressInfo(file, resolve))
+            .catch(compressError(file, reject));
     });
+}
 
+function compress(files) {
+
+    files = objToArr(files);
+    if (!files.length) return;
+    if (compressing) return;
+    compressing = true;
+
+    const chunks = chunk(files, chunkCount);
+
+    let a = 0;
+
+    const fn = () => {
+
+        const oneChunk = chunks.shift();
+
+        if (oneChunk) {
+
+            let runChunk = oneChunk.map(file => {
+                return compressOne(file)
+            });
+
+            Promise.all(runChunk).then((files) => {
+                a++;
+                console.log('done chunk.....' + a);
+                fn();
+            });
+        }
+    };
+
+    fn();
 }
 
 function handleDrop(e) {
@@ -246,6 +283,5 @@ document.querySelector('#compress').addEventListener('click', () => {
 
     const out = path.join(outPath, defaultOutDir);
     mkdirp.sync(out);
-
     compress(filesMap)
 });
