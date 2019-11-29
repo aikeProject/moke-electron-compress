@@ -33,6 +33,13 @@ let chunkCount = 6;
 // resize width height
 let resizeWidth, resizeHeight;
 
+const defaultOpt = {
+    quality: quality,
+    chromaSubsampling: '4:4:4'
+};
+
+const resizeOption = {};
+
 const flattenArr = (arr) => {
     return arr.reduce((map, item) => {
         map[item.id] = item;
@@ -93,21 +100,31 @@ function render(files) {
 
     files.forEach(file => {
 
-        const done = file.done ? 'bg-success' : 'progress-bar-striped';
-        const pending = file.compress
-            ? 'progress-bar-animated bg-success' :
-            file.done ? '' : 'bg-warning';
-        const progress = `progress-bar ${done} ${pending}`;
+        let progress = '';
 
-        str += `<li class="list-group-item">
+        if (!file.error) {
+            const done = file.done ? 'bg-success' : 'progress-bar-striped';
+            const pending = file.compress
+                ? 'progress-bar-animated bg-success' :
+                file.done ? '' : 'bg-warning';
+            progress = `progress-bar ${done} ${pending}`;
+        } else {
+            progress = 'progress-bar progress-bar-striped bg-danger'
+        }
+
+        str += `<li class="list-group-item" style="position: relative;">
                     <div class="name ellipsis">${file.name}</div>
                     <div class="size">
                         <div class="size--pending">${flattenSize(file.size)}</div>
                         <div class="size--success">${file.compressSize ? flattenSize(file.compressSize) : ''}</div>
                     </div>
                     <div class="progress">
-                        <div class="${progress}"></div>
+                        <div style="width: 100%;" class="${progress}"></div>
                     </div>
+                    <button
+                        onclick="compressRetry('${file.id}')"
+                        style="${file.error ? 'display: block;' : 'display: none;'}" 
+                        class="btn btn-success btn-sm retry">重试</button>
                 </li>`;
     });
 
@@ -169,13 +186,23 @@ function compressBtn() {
     else compress.removeAttribute('disabled')
 }
 
-function compressOne(file) {
+// 重试
+let timeout = null;
+function compressRetry(id) {
+    const file = filesMap[id];
+    filesMap[id] = {...file, compress: true, done: false, error: false, compressSize: null};
 
-    const defaultOpt = {
-        quality: quality,
-        chromaSubsampling: '4:4:4'
-    };
-    const resizeOption = {};
+    render(filesMap);
+
+    clearTimeout(timeout);
+
+    setTimeout(() => {
+        compressOne(file);
+    }, 500);
+
+}
+
+function compressOne(file) {
 
     if (resizeWidth) resizeOption.width = resizeWidth;
     if (resizeHeight) resizeOption.height = resizeHeight;
