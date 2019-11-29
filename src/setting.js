@@ -19,6 +19,17 @@ document.querySelector('#select').addEventListener('click', () => {
 
 });
 
+document.querySelector('#noCompress').addEventListener('change', (e) => {
+    const quality = document.querySelector('#quality');
+    if (e.target.checked) {
+        quality.disabled = true;
+        quality.style.cursor = 'not-allowed';
+    } else {
+        quality.disabled = false;
+        quality.style.cursor = 'pointer';
+    }
+});
+
 document.querySelector('#settingSave').addEventListener('click', () => {
 
     let result = serializeArray(document.querySelector('#settings'));

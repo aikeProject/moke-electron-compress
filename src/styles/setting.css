@@ -2,9 +2,15 @@
     padding: 20px;
 }
 
-.select-file {
+.select-file, .no-compress {
     display: flex;
     align-items: flex-end;
     margin-bottom: 1em;
     margin-left: 5px;
+    cursor: pointer;
+}
+
+.no-compress {
+    margin-bottom: 1.25em;
+    margin-left: 15px;
 }

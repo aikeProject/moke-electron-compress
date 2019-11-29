@@ -26,8 +26,12 @@ let outPath = remote.app.getPath('desktop');
 const defaultOutDir = 'moke-compress';
 // 默认压缩质量
 let quality = 70;
+// 是否压缩
+let noCompress = true;
 // 分组压缩 默认 6
 let chunkCount = 6;
+// resize width height
+let resizeWidth, resizeHeight;
 
 const flattenArr = (arr) => {
     return arr.reduce((map, item) => {
@@ -171,6 +175,10 @@ function compressOne(file) {
         quality: quality,
         chromaSubsampling: '4:4:4'
     };
+    const resizeOption = {};
+
+    if (resizeWidth) resizeOption.width = resizeWidth;
+    if (resizeHeight) resizeOption.height = resizeHeight;
 
     return new Promise((resolve, reject) => {
         let fileData = sharp(file.path);
@@ -181,21 +189,28 @@ function compressOne(file) {
 
         const out = path.join(outPath, defaultOutDir, file.name);
 
-        switch (type) {
-            case "png":
-                fileData = fileData
-                    .png(defaultOpt);
-                break;
-            case "jpg":
-                fileData = fileData
-                    .jpg(defaultOpt);
-                break;
-            case "jpeg":
-                fileData = fileData
-                    .jpeg(defaultOpt);
-                break;
-            default:
-                break;
+        if (noCompress) {
+            switch (type) {
+                case "png":
+                    fileData = fileData
+                        .png(defaultOpt);
+                    break;
+                case "jpg":
+                    fileData = fileData
+                        .jpg(defaultOpt);
+                    break;
+                case "jpeg":
+                    fileData = fileData
+                        .jpeg(defaultOpt);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        // 调整图片大小
+        if (resizeOption.width || resizeOption.height) {
+            fileData = fileData.resize(resizeOption)
         }
 
         fileData
@@ -226,7 +241,7 @@ function compress(files) {
                 return compressOne(file)
             });
 
-            Promise.all(runChunk).then((files) => {
+            Promise.all(runChunk).then(() => {
                 a++;
                 console.log('done chunk.....' + a);
                 fn();
@@ -270,7 +285,10 @@ document.querySelector('#setting').addEventListener('click', () => {
 
 ipcRenderer.on('settings', (event, args) => {
     quality = Number(args.quality) || quality;
+    noCompress = Boolean(args.noCompress);
     outPath = args.outPath || outPath;
+    resizeWidth = Number(args.width) || null;
+    resizeHeight = Number(args.height) || null;
 });
 
 document.querySelector('#compress').addEventListener('click', () => {
