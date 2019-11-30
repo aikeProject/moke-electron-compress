@@ -4,10 +4,11 @@
  * @Description:
  */
 
-const {app, ipcMain} = require('electron');
+const {app, ipcMain, Menu} = require('electron');
 const dev = require('electron-is-dev');
-const AppWindow = require('./AppWindow');
 const path = require('path');
+const AppWindow = require('./AppWindow');
+const menuTemplate = require('./menu');
 
 const port = 3000;
 
@@ -26,12 +27,16 @@ const createWindow = () => {
         : `file://${path.join(__dirname, './renderer/index.html')}`;
 
     mainWindow = new AppWindow({
-        // width: 300,
-        // height: 600,
+        width: 300,
+        height: 350,
     }, mainUrl);
 
     // Open the DevTools.
     // dev && mainWindow.webContents.openDevTools();
+
+    // 设置菜单
+    let menu = Menu.buildFromTemplate(menuTemplate);
+    Menu.setApplicationMenu(menu);
 
     // Emitted when the window is closed.
     mainWindow.on('closed', () => {
