@@ -8,18 +8,11 @@ const path = require('path');
 const webpack = require('webpack');
 const FilterWarningsPlugin = require('webpack-filter-warnings-plugin');
 
-/*
- * We've enabled HtmlWebpackPlugin for you! This generates a html
- * page for you when you compile webpack, which will make you start
- * developing and prototyping faster.
- *
- * https://github.com/jantimon/html-webpack-plugin
- *
- */
-
 module.exports = {
-    // mode: 'production',
-    mode: "development",
+
+    watchOptions: {
+        ignored: /node_modules/
+    },
 
     plugins: [
         new webpack.ProgressPlugin(),
@@ -36,13 +29,15 @@ module.exports = {
                 loader: 'babel-loader',
 
                 options: {
-                    plugins: ['syntax-dynamic-import'],
+                    cacheDirectory: true,
 
                     presets: [
                         [
                             '@babel/preset-env',
                             {
-                                modules: false
+                                targets: {
+                                    electron: require('electron/package.json').version
+                                }
                             }
                         ]
                     ]
@@ -52,21 +47,19 @@ module.exports = {
                 test: /\.node$/,
                 use: 'node-loader',
             },
+            {
+                test: /\.(css|less)/,
+                use: [
+                    {loader: "style-loader"},
+                    {loader: "css-loader"},
+                    {loader: "less-loader"}
+                ]
+            }
         ]
     },
 
-    optimization: {
-        splitChunks: {
-            cacheGroups: {
-                vendors: {
-                    priority: -10,
-                    test: /[\\/]node_modules[\\/]/
-                }
-            },
-            chunks: 'async',
-            minChunks: 1,
-            minSize: 30000,
-            name: true
-        }
+    node: {
+        __dirname: false,
+        __filename: false
     }
 };

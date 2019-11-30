@@ -5,7 +5,7 @@
  */
 
 const {app, ipcMain} = require('electron');
-const dev = require('electron-is-dev');
+// const dev = require('electron-is-dev');
 const AppWindow = require('./AppWindow');
 const path = require('path');
 
@@ -18,10 +18,8 @@ let mainWindow, settingsWindow;
 
 const createWindow = () => {
     // Create the browser window.
-
-    const mainUrl = dev
-        ? `file://${path.join(__dirname, './render/index.html')}`
-        : `file://${path.join(__dirname, '../renderer/render/index.html')}`;
+    // console.log('dev', dev);
+    const mainUrl = `file://${path.join(__dirname, './renderer/index.html')}`;
 
     mainWindow = new AppWindow({
         // width: 300,
@@ -29,7 +27,7 @@ const createWindow = () => {
     }, mainUrl);
 
     // Open the DevTools.
-    dev && mainWindow.webContents.openDevTools();
+    // dev && mainWindow.webContents.openDevTools();
 
     // Emitted when the window is closed.
     mainWindow.on('closed', () => {
@@ -45,9 +43,7 @@ const createWindow = () => {
             height: 400,
             parent: mainWindow
         };
-        const settingsFileLocation = dev
-            ? `file://${path.join(__dirname, '../renderer/render/setting.html')}`
-            : `file://${path.join(__dirname, './render/setting.html')}`;
+        const settingsFileLocation = `file://${path.join(__dirname, './renderer/setting.html')}`;
 
         settingsWindow = new AppWindow(settingsWindowConfig, settingsFileLocation);
         settingsWindow.removeMenu();

@@ -3,3 +3,6 @@ node_modules
 .DS_Store
 .idea
 dist
+build/renderer
+build/main.js
+build/main.js.map

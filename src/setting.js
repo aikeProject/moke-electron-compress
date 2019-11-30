@@ -7,6 +7,8 @@
 const {ipcRenderer, remote} = require('electron');
 const {serializeArray} = require('./util.js');
 
+require('./styles/setting.css');
+
 document.querySelector('#select').addEventListener('click', () => {
 
     remote.dialog.showOpenDialog({

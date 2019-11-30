@@ -2,10 +2,17 @@
   "name": "moke-compress",
   "version": "1.0.0",
   "description": "electron构建的简单压缩工具",
-  "main": "src/main.js",
+  "main": "build/main.js",
   "scripts": {
     "dev": "nodemon --watch src --exec \"electron . --debug\"",
-    "build": "webpack",
+    "build:dev": "webpack --mode=development --watch --debug",
+    "build:pro": "webpack --mode=production",
+    "prepack": "npm run build:dev",
+    "pack": "electron-builder --dir",
+    "predist": "npm run build:pro",
+    "dist": "electron-builder",
+    "prerestart": "npm run build:pro",
+    "release": "electron-builder",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -22,6 +29,7 @@
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
     "css-loader": "^3.2.0",
     "electron": "^7.1.2",
+    "electron-builder": "^21.2.0",
     "electron-is-dev": "^1.1.0",
     "electron-squirrel-startup": "^1.0.0",
     "html-webpack-plugin": "^3.2.0",
@@ -39,5 +47,66 @@
     "webpack-filter-warnings-plugin": "^1.2.1",
     "webpack-merge": "^4.2.2"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "homepage": "./",
+  "build": {
+    "appId": "mokeCompress",
+    "productName": "MOKE压缩图片",
+    "copyright": "Copyright © 2019 ${author}",
+    "files": [
+      "build/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    },
+    "extraMetadata": {
+      "main": "./build/main.js"
+    },
+    "publish": [
+      "github"
+    ],
+    "extends": null,
+    "mac": {
+      "category": "public.app-category.productivity",
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
+    },
+    "dmg": {
+      "background": "assets/appdmg.png",
+      "icon": "assets/icon.icns",
+      "iconSize": 100,
+      "contents": [
+        {
+          "x": 380,
+          "y": 280,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 110,
+          "y": 280,
+          "type": "file"
+        }
+      ],
+      "window": {
+        "width": 500,
+        "height": 500
+      }
+    },
+    "win": {
+      "target": [
+        "msi",
+        "nsis"
+      ],
+      "icon": "assets/icon.ico",
+      "artifactName": "${productName}-Web-Setup-${version}.${ext}",
+      "publisherName": "成雨"
+    },
+    "nsis": {
+      "allowToChangeInstallationDirectory": true,
+      "oneClick": false,
+      "perMachine": false
+    }
+  }
 }

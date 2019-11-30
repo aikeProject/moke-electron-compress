@@ -4,13 +4,15 @@ const merge = require('webpack-merge');
 const path = require('path');
 
 const mainConfig = merge(baseConfig, {
+    devtool: 'source-map',
     target: "electron-main",
     entry: {
         main: './src/main.js',
     },
     output: {
         filename: '[name].js',
-        path: path.resolve(__dirname, 'dist/main')
+        path: path.resolve(__dirname, 'build'),
+        libraryTarget: 'commonjs2'
     },
 });
 
@@ -22,7 +24,7 @@ const renderConfig = merge(baseConfig, {
     },
     output: {
         filename: '[name].js',
-        path: path.resolve(__dirname, 'dist/renderer')
+        path: path.resolve(__dirname, 'build/renderer')
     },
     plugins: [
         new HtmlWebpackPlugin({

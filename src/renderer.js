@@ -10,6 +10,8 @@ const sharp = require('sharp');
 const uuidV4 = require('uuid/v4');
 const mkdirp = require('mkdirp');
 
+require('./styles/index.css');
+
 const versionNode = process.versions.node;
 const versionElectron = process.versions.electron;
 
