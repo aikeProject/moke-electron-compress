@@ -4,7 +4,6 @@ const merge = require('webpack-merge');
 const path = require('path');
 
 const mainConfig = merge(baseConfig, {
-    devtool: 'source-map',
     target: "electron-main",
     entry: {
         main: './src/main.js',

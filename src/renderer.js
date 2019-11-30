@@ -188,7 +188,7 @@ function compressBtn() {
 }
 
 // 重试
-let timeout = null;
+window.timeout = null;
 
 function compressRetry(id) {
     const file = filesMap[id];
@@ -203,6 +203,8 @@ function compressRetry(id) {
     }, 500);
 
 }
+
+window.compressRetry = compressRetry;
 
 function compressOne(file) {
 

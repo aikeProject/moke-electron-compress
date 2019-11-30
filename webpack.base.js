@@ -9,6 +9,7 @@ const webpack = require('webpack');
 const FilterWarningsPlugin = require('webpack-filter-warnings-plugin');
 
 module.exports = {
+    devtool: 'source-map',
 
     watchOptions: {
         ignored: /node_modules/
