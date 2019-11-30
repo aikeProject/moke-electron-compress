@@ -183,8 +183,14 @@ function compressDone() {
 
 function compressBtn() {
     const compress = document.querySelector('#compress');
-    if (compressing) compress.setAttribute('disabled', 'true');
-    else compress.removeAttribute('disabled')
+    if (compressing) {
+        compress.setAttribute('disabled', 'true');
+        compress.children[0].style.display = '';
+    }
+    else {
+        compress.removeAttribute('disabled');
+        compress.children[0].style.display = 'none';
+    }
 }
 
 // 重试
@@ -251,9 +257,9 @@ function compressOne(file) {
     });
 }
 
-function compress(files) {
+function compress() {
 
-    files = objToArr(files);
+    const files = objToArr(filesMap);
 
     if (!files.length) return;
     if (compressing) return;
@@ -277,6 +283,7 @@ function compress(files) {
 
     const chunks = chunk(files, chunkCount);
 
+    const chunkLength = chunks.length;
     let a = 0;
 
     const fn = () => {
@@ -294,6 +301,23 @@ function compress(files) {
             Promise.allSettled(runChunk).then(() => {
                 a++;
                 console.log('done chunk.....' + a);
+
+                if (a === chunkLength) {
+
+                    compressing = false;
+
+                    render(filesMap);
+
+                    const errorCount = objToArr(filesMap).reduce((preCount, item) => {
+                        if (item.error) return ++preCount;
+                        return preCount;
+                    }, 0);
+
+                    new window.Notification('MOKE压缩', {
+                        body: `总数：${files.length}，成功: ${files.length - errorCount}，失败：${errorCount}`
+                    });
+                }
+
                 fn();
             });
         }
@@ -350,5 +374,5 @@ document.querySelector('#compress').addEventListener('click', () => {
     console.log('调整大小resize: ', `${resizeWidth} x ${resizeHeight}`);
     console.log('------ 压缩配置 ------');
 
-    compress(filesMap)
+    compress()
 });

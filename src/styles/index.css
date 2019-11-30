@@ -41,6 +41,7 @@
 
 .list-group-item .name {
   color: #707070;
+  padding-right: 40px;
 }
 
 .list-group-item .size {
