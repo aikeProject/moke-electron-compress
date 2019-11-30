@@ -39,7 +39,8 @@ npm start
 
 #### `Electron` 打包相关
 
-- `electron-builder` 详细配置参考： [详细](https://www.npmjs.com/package/electron-builder)
+- `electron-builder` 详细配置参考： [详细](https://www.npmjs.com/package/electron-builder)，
+[文档](https://www.electron.build/)
 
 ```
 npm i electron-builder -D
@@ -64,13 +65,12 @@ npm install -g asar
 asar extarct app.asar ./app
 ```
 
-#### 打包发布配置
+#### 打包发布配置，自动发布release [详情](https://www.electron.build/configuration/publish)
 
-```
-pending....
-```
+- 关联到github
+- 
 
-#### 应用打包
+#### 应用打包，生产安装包
 
 - `npm run pack` 本地开发分析包内容时使用
-- `npm run release` 打包发布
+- `npm run release` 打包发布，生成一个`release`版本
