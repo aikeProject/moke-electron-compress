@@ -196,9 +196,9 @@ function compressRetry(id) {
 
     render(filesMap);
 
-    clearTimeout(timeout);
+    clearTimeout(window.timeout);
 
-    setTimeout(() => {
+    window.timeout = setTimeout(() => {
         compressOne(file);
     }, 500);
 
