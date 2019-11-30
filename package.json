@@ -25,7 +25,11 @@
     "sharp",
     "electron-builder"
   ],
-  "author": "成雨",
+  "author": {
+    "name": "成雨",
+    "email": "1121352970@qq.com",
+    "url": "https://github.com/aikeProject/moke-electron-compress"
+  },
   "license": "ISC",
   "repository": "https://github.com/aikeProject/moke-electron-compress",
   "devDependencies": {
