@@ -1,9 +1,9 @@
 ### electron 图片压缩工具
 
 <p>
-    <img style="width: 200px;" src="./docs/moke1.jpg" alt="compress1">
-    <img style="width: 200px;" src="./docs/moke2.jpg" alt="compress2">
-    <img style="width: 200px;" src="./docs/moke3.jpg" alt="compress3">
+    <img width="200" src="./docs/moke1.jpg" alt="compress1">
+    <img width="200" src="./docs/moke2.jpg" alt="compress2">
+    <img width="200" src="./docs/moke3.jpg" alt="compress3">
 </p>
 
 #### 实现简单的压缩图片功能（png、jpg、jpeg）
