@@ -17,7 +17,7 @@
     "predist": "npm run build:pro",
     "dist": "electron-builder",
     "prerelease": "npm run build:pro",
-    "release": "cross-env GH_TOKEN=e9780fa2016917b730babef1371b3593a58a99b5 electron-builder",
+    "release": "electron-builder",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
