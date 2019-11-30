@@ -10,13 +10,13 @@ const FilterWarningsPlugin = require('webpack-filter-warnings-plugin');
 
 module.exports = {
     devtool: 'source-map',
+    // stats: "errors-only",
 
     watchOptions: {
-        ignored: /node_modules/
+        ignored: ['node_modules', 'dist/**/*', 'build/**/*']
     },
 
     plugins: [
-        new webpack.ProgressPlugin(),
         new FilterWarningsPlugin({
             exclude: /Critical dependency: the request of a dependency is an expression/,
         })

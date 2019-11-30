@@ -4,6 +4,7 @@
   "description": "electron构建的简单压缩工具",
   "main": "build/main.js",
   "scripts": {
+    "start": "concurrently \"npm run build:dev\" \"npm run dev\"",
     "dev": "nodemon --watch src --exec \"electron . --debug\"",
     "build:dev": "webpack --mode=development --watch --debug",
     "build:pro": "webpack --mode=production",
@@ -27,6 +28,7 @@
     "@babel/preset-env": "^7.7.4",
     "babel-loader": "^8.0.6",
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
+    "concurrently": "^5.0.0",
     "css-loader": "^3.2.0",
     "electron": "^7.1.2",
     "electron-builder": "^21.2.0",
