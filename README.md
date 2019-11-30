@@ -86,6 +86,7 @@ npm i electron-builder -D
 ```
 "release": "cross-env GH_TOKEN=e9780fa2016917b730babef1371b3593a58a99b5 electron-builder",
 ```
+- 注意：token不要放在代码里一起上传到github，这是不安全的，上传之后会造成`release`发布失败
 
 #### 应用打包，生产安装包
 
