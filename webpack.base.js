@@ -37,6 +37,7 @@ module.exports = {
                     presets: [
                         [
                             '@babel/preset-env',
+                            // babel reset-env 指定处理的环境
                             {
                                 targets: {
                                     electron: require('electron/package.json').version
