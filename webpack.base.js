@@ -5,8 +5,10 @@
  */
 
 const path = require('path');
-const webpack = require('webpack');
 const FilterWarningsPlugin = require('webpack-filter-warnings-plugin');
+
+const port = process.env.PORT || 3000;
+// const publicPath = `http://localhost:${port}/build`;
 
 module.exports = {
     devtool: 'source-map',
@@ -62,5 +64,21 @@ module.exports = {
     node: {
         __dirname: false,
         __filename: false
+    },
+    devServer : {
+        // publicPath,
+        contentBase: path.join(__dirname, 'build'),
+        port: port,
+        compress: true,
+        noInfo: true,
+        stats: 'errors-only',
+        inline: true,
+        lazy: false,
+        hot: true,
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        historyApiFallback: {
+            verbose: true,
+            disableDotRule: false
+        }
     }
 };

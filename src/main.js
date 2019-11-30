@@ -5,9 +5,11 @@
  */
 
 const {app, ipcMain} = require('electron');
-// const dev = require('electron-is-dev');
+const dev = require('electron-is-dev');
 const AppWindow = require('./AppWindow');
 const path = require('path');
+
+const port = 3000;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -18,8 +20,10 @@ let mainWindow, settingsWindow;
 
 const createWindow = () => {
     // Create the browser window.
-    // console.log('dev', dev);
-    const mainUrl = `file://${path.join(__dirname, './renderer/index.html')}`;
+
+    const mainUrl = dev
+        ? `http://localhost:${port}/renderer/index.html`
+        : `file://${path.join(__dirname, './renderer/index.html')}`;
 
     mainWindow = new AppWindow({
         // width: 300,
@@ -43,7 +47,9 @@ const createWindow = () => {
             height: 400,
             parent: mainWindow
         };
-        const settingsFileLocation = `file://${path.join(__dirname, './renderer/setting.html')}`;
+        const settingsFileLocation = dev
+            ? `http://localhost:${port}/renderer/setting.html`
+            : `file://${path.join(__dirname, './renderer/setting.html')}`;
 
         settingsWindow = new AppWindow(settingsWindowConfig, settingsFileLocation);
         settingsWindow.removeMenu();
