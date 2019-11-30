@@ -55,22 +55,39 @@ npm i electron-builder -D
 
 - 分析安装包内容
 
-- `app.asar`
-
-```
-# 安装 asar
-npm install -g asar
-
-# 解压到 ./app 文件夹下
-asar extarct app.asar ./app
-```
+    - `app.asar`
+    
+    ```
+    # 安装 asar
+    npm install -g asar
+    
+    # 解压到 ./app 文件夹下
+    asar extarct app.asar ./app
+    ```
 
 #### 打包发布配置，自动发布release [详情](https://www.electron.build/configuration/publish)
 
-- 关联到github
-- 
+- 使用 github release 进行发布
+- 将项目关联到 github
+- `package.json配置`
+
+```
+{
+  "build":
+    "publish": ["github"]
+  }
+}
+```
+
+- 生成 GitHub personal access token [add token](https://github.com/settings/tokens/new),
+生产token后添加如下配置，将`GH_TOKEN`添加到环境变量中，当`npm run release`运行的时候，`electron-builder`会自动
+帮我们上传到 github release
+
+```
+"release": "cross-env GH_TOKEN=e9780fa2016917b730babef1371b3593a58a99b5 electron-builder",
+```
 
 #### 应用打包，生产安装包
 
-- `npm run pack` 本地开发分析包内容时使用
+- `npm run pack` 本地开发，用来分析包内容时使用
 - `npm run release` 打包发布，生成一个`release`版本
