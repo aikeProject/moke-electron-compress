@@ -104,3 +104,38 @@ npm i electron-builder -D
 
 - `npm run pack` 本地开发，用来分析包内容时使用
 - `npm run release` 打包发布，生成一个`release`版本
+
+
+#### 知识点
+
+- 拖放(Drag 与 drop) [详见](https://www.cnblogs.com/sqh17/p/8676983.html) 
+[文档](https://developer.mozilla.org/zh-CN/docs/Web/API/HTML_Drag_and_Drop_API)
+
+```text
+在拖动目标上触发事件 (源元素):
+    ondragstart - 用户开始拖动元素时触发
+    ondrag - 元素正在拖动时触发
+    ondragend - 用户完成元素拖动后触发
+释放目标时触发的事件:
+    ondragenter - 当被鼠标拖动的对象进入其容器范围内时触发此事件
+    ondragover - 当某被拖动的对象在另一对象容器范围内拖动时触发此事件
+    ondragleave - 当被鼠标拖动的对象离开其容器范围内时触发此事件
+    ondrop - 在一个拖动过程中，释放鼠标键时触发此事件
+```
+
+- Html5 通知, `Notifications API` 的通知接口用于向用户配置和显示桌面通知
+[详见](https://developer.mozilla.org/zh-CN/docs/Web/API/notification)
+
+```text
+let notification = new Notification(title, options)
+
+title
+    一定会被显示的通知标题
+options 可选
+    一个被允许用来设置通知的对象。它包含以下属性：
+    dir : 文字的方向；它的值可以是 auto（自动）, ltr（从左到右）, or rtl（从右到左）
+    lang: 指定通知中所使用的语言。这个字符串必须在 BCP 47 language tag 文档中是有效的。
+    body: 通知中额外显示的字符串
+    tag: 赋予通知一个ID，以便在必要的时候对通知进行刷新、替换或移除。
+    icon: 一个图片的URL，将被用于显示通知的图标。
+```
