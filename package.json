@@ -126,8 +126,7 @@
         "rpm"
       ],
       "artifactName": "${productName}-Web-Setup-${version}.${ext}",
-      "category": "Graphics",
-      "publisherName": "成雨"
+      "category": "Graphics"
     }
   }
 }
