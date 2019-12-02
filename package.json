@@ -119,6 +119,15 @@
       "allowToChangeInstallationDirectory": true,
       "oneClick": false,
       "perMachine": false
+    },
+    "linux": {
+      "target": [
+        "deb",
+        "rpm"
+      ],
+      "artifactName": "${productName}-Web-Setup-${version}.${ext}",
+      "category": "Graphics",
+      "publisherName": "成雨"
     }
   }
 }

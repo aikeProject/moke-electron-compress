@@ -110,6 +110,9 @@ npm i electron-builder -D
 
 
 #### `github actions` 持续集成
+[github actions](https://help.github.com/cn/actions/automating-your-workflow-with-github-actions/getting-started-with-github-actions)
+[create-release](https://github.com/actions/create-release)
+[upload-release-asset](https://github.com/actions/upload-release-asset)
 
 ```yaml
 name: Create Release
@@ -124,6 +127,10 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    # The available virtual machine types are:
+        # ubuntu-latest, ubuntu-18.04, or ubuntu-16.04
+        # windows-latest, windows-2019, or windows-2016
+        # macOS-latest or macOS-10.14
 
     strategy:
       matrix:
@@ -138,9 +145,13 @@ jobs:
     - name: npm install, build
       run: |
         npm ci
-        npm run dist
+        npm run release
+      # 设置环境变量
       env:
         CI: true
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+    # 后续步骤本项目不需要
     - name: Build project # This would actually build your project, using zip for an example artifact
             run: |
               zip --junk-paths my-artifact README.md
