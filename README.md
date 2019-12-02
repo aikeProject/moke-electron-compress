@@ -110,6 +110,7 @@ npm i electron-builder -D
 
 - 拖放(Drag 与 drop) [详见](https://www.cnblogs.com/sqh17/p/8676983.html) 
 [文档](https://developer.mozilla.org/zh-CN/docs/Web/API/HTML_Drag_and_Drop_API)
+[浏览器兼容性](https://www.caniuse.com/#feat=dragndrop)
 
 ```text
 在拖动目标上触发事件 (源元素):
@@ -125,6 +126,7 @@ npm i electron-builder -D
 
 - Html5 通知, `Notifications API` 的通知接口用于向用户配置和显示桌面通知
 [详见](https://developer.mozilla.org/zh-CN/docs/Web/API/notification)
+[浏览器兼容性](https://www.caniuse.com/#search=Notifications)
 
 ```text
 let notification = new Notification(title, options)
