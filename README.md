@@ -6,6 +6,12 @@
     <img width="200" src="./docs/moke3.jpg" alt="compress3">
 </p>
 
+#### 下载
+
+- `Mac` [moke-compress-1.0.0.dmg](https://github.com/aikeProject/moke-electron-compress/releases)
+- `windows` (暂无)...
+- `linux` (暂无)...
+
 #### 实现简单的压缩图片功能（png、jpg、jpeg）
 
 - 1 通过调整图片质量压缩图片
@@ -86,7 +92,7 @@ npm i electron-builder -D
 ```
 
 - 生成 GitHub personal access token [add token](https://github.com/settings/tokens/new),
-生产token后添加如下配置，将`GH_TOKEN`添加到环境变量中，当`npm run release`运行的时候，`electron-builder`会自动
+生成token后添加如下配置，将`GH_TOKEN`添加到环境变量中，当`npm run release`运行的时候，`electron-builder`会自动
 帮我们上传到 github release
 
 ```
@@ -94,7 +100,7 @@ npm i electron-builder -D
 ```
 - 注意：token不要放在代码里一起上传到github，这是不安全的，上传之后会造成`release`发布失败
 
-#### 应用打包，生产安装包
+#### 应用打包，生成安装包
 
 - `npm run pack` 本地开发，用来分析包内容时使用
 - `npm run release` 打包发布，生成一个`release`版本
