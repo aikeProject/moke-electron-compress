@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [8.x, 10.x, 12.x]
+        node-version: [10.x]
 
     steps:
     - uses: actions/checkout@v1
@@ -23,8 +23,9 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: npm install, build
       run: |
+        sudo snap install snapcraft --classic
         npm ci
         npm run release
       env:
         CI: true
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
