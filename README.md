@@ -77,7 +77,10 @@ npm i electron-builder -D
     asar extarct app.asar ./app
     ```
 
-#### 打包发布配置，自动发布release [详情](https://www.electron.build/configuration/publish)
+#### 打包发布配置，自动发布release
+[详情](https://www.electron.build/configuration/publish)
+[github releases文档](https://help.github.com/cn/github/administering-a-repository/creating-releases)
+[github releases api 文档](https://developer.github.com/v3/repos/releases/#create-a-release)
 
 - 使用 github release 进行发布
 - 将项目关联到 github
