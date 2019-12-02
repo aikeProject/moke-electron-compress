@@ -63,7 +63,7 @@
   "homepage": "./",
   "build": {
     "appId": "mokeCompress",
-    "productName": "moke-compress",
+    "productName": "Moke-Compress",
     "copyright": "Copyright © 2019 ${author}",
     "files": [
       "build/**/*",

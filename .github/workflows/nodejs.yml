@@ -1,17 +1,19 @@
 name: Create Release
 
-on: [push]
+on:
+  push:
+    branches:
+      - master
 
 jobs:
   build:
-    name: Test on node ${{ matrix.node_version }} and ${{ matrix.os }}
+    name: node ${{ matrix.node_version }} and ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
         node-version: [10.x]
-        os: [ubuntu-latest]
-        # os: [windows-latest, macOS-latest]
+        os: [macOS-latest, windows-latest, ubuntu-latest]
 
     steps:
     - uses: actions/checkout@v1
@@ -19,7 +21,7 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - name: npm install, build
+    - name: npm install, build, release
       run: |
         npm ci
         npm run release

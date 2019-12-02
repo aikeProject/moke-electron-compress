@@ -114,27 +114,25 @@ npm i electron-builder -D
 [create-release](https://github.com/actions/create-release)
 [upload-release-asset](https://github.com/actions/upload-release-asset)
 
+- 该项目完整配置
+
 ```yaml
 name: Create Release
 
 on:
   push:
-      # Sequence of patterns matched against refs/tags
-      tags:
-        - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+    branches:
+      - master
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
-    # The available virtual machine types are:
-        # ubuntu-latest, ubuntu-18.04, or ubuntu-16.04
-        # windows-latest, windows-2019, or windows-2016
-        # macOS-latest or macOS-10.14
+    name: Test on node ${{ matrix.node_version }} and ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
-        node-version: [8.x, 10.x, 12.x]
+        node-version: [10.x]
+        os: [macOS-latest, windows-latest, ubuntu-latest]
 
     steps:
     - uses: actions/checkout@v1
@@ -143,40 +141,14 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - name: npm install, build
+      # release 发布上传功能，由electron-builder提供 （npm run release）
       run: |
         npm ci
         npm run release
-      # 设置环境变量
+      # node环境变量
       env:
         CI: true
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
-
-    # 后续步骤本项目不需要
-    - name: Build project # This would actually build your project, using zip for an example artifact
-            run: |
-              zip --junk-paths my-artifact README.md
-    - name: Create Release
-                id: create_release
-                uses: actions/create-release@v1.0.0
-                env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                with:
-                  tag_name: ${{ github.ref }}
-                  release_name: Release ${{ github.ref }}
-                  draft: false
-                  prerelease: false
-              - name: Upload Release Asset
-                id: upload-release-asset 
-                uses: actions/upload-release-asset@v1.0.1
-                env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                with:
-                  # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-                  upload_url: ${{ steps.create_release.outputs.upload_url }} 
-                  asset_path: ./my-artifact.zip
-                  asset_name: my-artifact.zip
-                  asset_content_type: application/zip
-
 ```
 
 #### 知识点
