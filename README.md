@@ -109,6 +109,65 @@ npm i electron-builder -D
 - `npm run release` 打包发布，生成一个`release`版本
 
 
+#### `github actions` 持续集成
+
+```yaml
+name: Create Release
+
+on:
+  push:
+      # Sequence of patterns matched against refs/tags
+      tags:
+        - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [8.x, 10.x, 12.x]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: npm install, build
+      run: |
+        npm ci
+        npm run dist
+      env:
+        CI: true
+    - name: Build project # This would actually build your project, using zip for an example artifact
+            run: |
+              zip --junk-paths my-artifact README.md
+    - name: Create Release
+                id: create_release
+                uses: actions/create-release@v1.0.0
+                env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                with:
+                  tag_name: ${{ github.ref }}
+                  release_name: Release ${{ github.ref }}
+                  draft: false
+                  prerelease: false
+              - name: Upload Release Asset
+                id: upload-release-asset 
+                uses: actions/upload-release-asset@v1.0.1
+                env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                with:
+                  # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+                  upload_url: ${{ steps.create_release.outputs.upload_url }} 
+                  asset_path: ./my-artifact.zip
+                  asset_name: my-artifact.zip
+                  asset_content_type: application/zip
+
+```
+
 #### 知识点
 
 - 拖放(Drag 与 drop) [详见](https://www.cnblogs.com/sqh17/p/8676983.html) 
