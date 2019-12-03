@@ -8,14 +8,16 @@
 
 #### 下载
 
-- `Mac` [moke-compress-1.0.0.dmg](https://github.com/aikeProject/moke-electron-compress/releases)
-- `windows` (暂无)...
-- `linux` (暂无)...
+- `Mac` 
+- `windows` 
+- `linux`
+
+[release](https://github.com/aikeProject/moke-electron-compress/releases)
 
 #### 实现简单的压缩图片功能（png、jpg、jpeg）
 
-- 1 通过调整图片质量压缩图片
-- 2 可以调整图片实际宽度和高度
+- 可以通过调整图片质量压缩图片
+- 可以调整图片实际宽度和高度
 
 #### `Electron` 相关知识
 
@@ -41,7 +43,9 @@ npm i sharp
 npm start
 ```
 
-#### 开发环境搭建 [环境搭建参考项目](https://github.com/electron-react-boilerplate/electron-react-boilerplate)
+#### 开发环境搭建 
+
+[环境搭建参考项目](https://github.com/electron-react-boilerplate/electron-react-boilerplate)
 
 - `npm run start-renderer-dev` 启动渲染进程
 - `npm run start-main-dev` 启动主进程
@@ -51,7 +55,9 @@ npm start
 
 #### `Electron` 打包相关
 
-- `electron-builder` 详细配置参考： [详细](https://www.npmjs.com/package/electron-builder)，
+- `electron-builder` 
+详细配置参考：
+[详细](https://www.npmjs.com/package/electron-builder)，
 [文档](https://www.electron.build/)
 
 ```
@@ -111,7 +117,11 @@ npm i electron-builder -D
 
 #### `github actions` 持续集成
 [github actions](https://help.github.com/cn/actions/automating-your-workflow-with-github-actions/getting-started-with-github-actions)
+<br/>
+[创建 JavaScript 操作](https://help.github.com/cn/actions/automating-your-workflow-with-github-actions/creating-a-javascript-action)
+<br/>
 [create-release](https://github.com/actions/create-release)
+<br/>
 [upload-release-asset](https://github.com/actions/upload-release-asset)
 
 - 该项目完整配置
@@ -153,8 +163,11 @@ jobs:
 
 #### 知识点
 
-- 拖放(Drag 与 drop) [详见](https://www.cnblogs.com/sqh17/p/8676983.html) 
+- 拖放(Drag 与 drop) 
+[详见](https://www.cnblogs.com/sqh17/p/8676983.html) 
+<br/>
 [文档](https://developer.mozilla.org/zh-CN/docs/Web/API/HTML_Drag_and_Drop_API)
+<br/>
 [浏览器兼容性](https://www.caniuse.com/#feat=dragndrop)
 
 ```text
@@ -170,7 +183,9 @@ jobs:
 ```
 
 - Html5 通知, `Notifications API` 的通知接口用于向用户配置和显示桌面通知
+<br/>
 [详见](https://developer.mozilla.org/zh-CN/docs/Web/API/notification)
+<br/>
 [浏览器兼容性](https://www.caniuse.com/#search=Notifications)
 
 ```text
