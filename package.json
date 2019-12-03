@@ -122,11 +122,11 @@
     },
     "linux": {
       "target": [
+        "AppImage",
         "deb",
         "rpm"
       ],
-      "artifactName": "${productName}-Web-Setup-${version}.${ext}",
-      "category": "Graphics"
+      "artifactName": "${productName}-Web-Setup-${version}.${ext}"
     }
   }
 }
