@@ -60,7 +60,7 @@
     "webpack-merge": "^4.2.2"
   },
   "dependencies": {},
-  "homepage": "./",
+  "homepage": "https://github.com/aikeProject/moke-electron-compress",
   "build": {
     "appId": "mokeCompress",
     "productName": "Moke-Compress",
