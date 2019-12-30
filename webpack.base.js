@@ -71,7 +71,7 @@ module.exports = {
         contentBase: path.join(__dirname, 'build'),
         port: port,
         compress: true,
-        noInfo: true,
+        noInfo: false,
         stats: 'errors-only',
         inline: true,
         lazy: false,

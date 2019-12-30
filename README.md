@@ -21,9 +21,23 @@
 
 #### `Electron` 相关知识
 
-- 主进程
+- 主进程 [main-and-renderer-processes](https://electronjs.org/docs/tutorial/application-architecture#main-and-renderer-processes)
+
+```
+1、一个 Electron 应用总是有且只有一个主进程
+2、在 Node.js 的 API 支持下可以在页面中和操作系统进行一些底层交互
+```
+
 - 渲染进程
-- 主进程与渲染进程间通信 `ipcMain` 与 `ipcRenderer`
+
+```
+在主进程中使用"BrowserWindow"就可以创建页面，每个"BrowserWindow"运行在自己的渲染进程里面
+```
+
+####  Electron API 的核心特
+
+- [API相关参考](https://github.com/demopark/electron-api-demos-Zh_CN)
+- 主进程与渲染进程间通信 `ipcMain` 与 `ipcRenderer` 
 - 不同窗口间的通信
 - 通知
 - 拖拽
@@ -31,16 +45,10 @@
 - `electron.app` 上的一些方法
     - `remote.app.getPath('desktop')`, 获取路径 [详见](https://electronjs.org/docs/api/app#appgetpathname)
 
-#### 压缩图片使用的工具 `sharp`
+#### 压缩图片使用的工具 `sharp` [sharp](https://github.com/lovell/sharp)
 
 ```
 npm i sharp
-```
-
-#### 本地开发项目运行
-
-```
-npm start
 ```
 
 #### 开发环境搭建 
@@ -52,6 +60,20 @@ npm start
 - `webpack` 配置主要需要注意构建目标 `target` 配置，对于主进程使用`electron-main`,渲染进程`electron-renderer` 
 [详见](https://www.webpackjs.com/configuration/target/#target)
 
+#### 本地开发项目运行
+
+- `npm start`
+
+```
+"start": "concurrently \"wait-on http://localhost:3000/ && npm run start-main-dev\" \"npm run start-renderer-dev\""
+
+先启动webpack3000端口的本地服务，再启动"electron"
+"wait-on" 的作用：等待"http://localhost:3000/"就绪，之后再启动"electron"
+```
+
+- `npm run pack` 生成宝目录文件，用于分析
+- `npm run dist` 打包成安装包
+- `npm run release` 打包并发布
 
 #### `Electron` 打包相关
 
@@ -60,8 +82,93 @@ npm start
 [详细](https://www.npmjs.com/package/electron-builder)，
 [文档](https://www.electron.build/)
 
+- 安装`electron-builder`
+
 ```
 npm i electron-builder -D
+```
+
+- 配置介绍
+
+```
+"build": {
+    "appId": "mokeCompress", // 应用的id
+    "productName": "Moke-Compress", // 应用的名称
+    "copyright": "Copyright © 2019 ${author}", // 版权信息
+    // 需要打包的文件
+    "files": [
+      "build/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "directories": {
+      // 应用图标、任务栏图标等资源的地址
+      "buildResources": "assets"
+    },
+    "extraMetadata": {
+      // webpack打包之后的主进程入口文件
+      "main": "./build/main.js"
+    },
+    // 用于发布的相关配置
+    "publish": [
+      "github"
+    ],
+    "extends": null,
+    // Mac安装包相关配置
+    "mac": {
+      // 应用的分类
+      "category": "public.app-category.productivity",
+      // 安装包名
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
+    },
+    // mac .dmg格式安装包，配置
+    "dmg": {
+      "background": "assets/appdmg.png",
+      "icon": "assets/icon.icns",
+      "iconSize": 100,
+      "contents": [
+        {
+          "x": 380,
+          "y": 280,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 110,
+          "y": 280,
+          "type": "file"
+        }
+      ],
+      "window": {
+        "width": 500,
+        "height": 500
+      }
+    },
+    // windows 配置
+    "win": {
+      "target": [
+        "msi",
+        "nsis"
+      ],
+      "icon": "assets/icon.ico",
+      "artifactName": "${productName}-Web-Setup-${version}.${ext}",
+      "publisherName": "成雨"
+    },
+    "nsis": {
+      "allowToChangeInstallationDirectory": true,
+      "oneClick": false,
+      "perMachine": false
+    },
+    // linux配置
+    "linux": {
+      "target": [
+        "deb", // deb 是 ubuntu 、debian 的格式
+        "rpm"  // rpm 是 redhat 、fedora 、suse 的格式
+      ],
+      // 安装包名
+      "artifactName": "${productName}-Web-Setup-${version}.${ext}"
+    }
+}
 ```
 
 - 打包优化 [详细](https://imweb.io/topic/5b6817b5f6734fdf12b4b09c)
@@ -88,7 +195,6 @@ npm i electron-builder -D
 [github releases文档](https://help.github.com/cn/github/administering-a-repository/creating-releases)
 [github releases api 文档](https://developer.github.com/v3/repos/releases/#create-a-release)
 
-- 使用 github release 进行发布
 - 将项目关联到 github
 - `package.json配置`
 
@@ -107,6 +213,7 @@ npm i electron-builder -D
 ```
 "release": "cross-env GH_TOKEN=e9780fa2016917b730babef1371b3593a58a99b5 electron-builder",
 ```
+
 - 注意：token不要放在代码里一起上传到github，这是不安全的，上传之后会造成`release`发布失败
 
 #### 应用打包，生成安装包
@@ -114,6 +221,11 @@ npm i electron-builder -D
 - `npm run pack` 本地开发，用来分析包内容时使用
 - `npm run release` 打包发布，生成一个`release`版本
 
+```
+在国内打包的会后会下载一个文件
+"https://github.com/electron/electron/releases/download/v7.1.2/electron-v7.1.2-darwin-x64.zip",
+特别慢，就算我翻了墙也慢(...)，所以才使用了"github actions"
+```
 
 #### `github actions` 持续集成
 [github actions](https://help.github.com/cn/actions/automating-your-workflow-with-github-actions/getting-started-with-github-actions)
