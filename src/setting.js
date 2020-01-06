@@ -4,7 +4,7 @@
  * @Description: 设置信息
  */
 
-const {ipcRenderer, remote} = require('electron');
+const {ipcRenderer, remote} = window.require('electron');
 const {serializeArray} = require('./util.js');
 
 require('./styles/setting.css');

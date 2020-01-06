@@ -47,10 +47,10 @@ module.exports = {
                     ]
                 }
             },
-            {
-                test: /\.node$/,
-                use: 'node-loader',
-            },
+            // {
+            //     test: /\.node$/,
+            //     use: 'node-loader',
+            // },
             {
                 test: /\.(css|less)/,
                 use: [
