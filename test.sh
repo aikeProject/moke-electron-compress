@@ -39,3 +39,11 @@ fi
 
 cd node_modules/sharp
 echo $(pwd)
+
+if [[ `command -v xcode-select` ]]; then
+    echo 'xcode-select'
+fi
+
+if [[ `command -v xcode` ]]; then
+    echo 'xcode'
+fi

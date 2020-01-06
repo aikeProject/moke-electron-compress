@@ -10,7 +10,7 @@ electron="7.1.2"
 # 淘宝镜像仓库 https://npm.taobao.org/mirrors/
 
 # 打印debug信息，查看是否换源成功
-#export DEBUG="*"
+export DEBUG="*"
 
 # 是不是本地开发,NO_LOCAL在git action里设置的这个环境变量
 # -z 检查变量是否为空
@@ -45,7 +45,7 @@ npm i sharp@0.23.4 -D -E
 echo "重新编译sharp"
 cd node_modules/sharp
 echo "切换到sharp目录下: $(pwd)"
-echo "npx node-gyp rebuild --target=${electron} --arch=x64 --dist-url=https://electronjs.org/headers --debug"
+echo "npx node-gyp rebuild --target=${electron} --arch=x64 --dist-url=https://electronjs.org/headers"
 #export HOME="~/.electron-gyp"
-npx node-gyp rebuild --target=${electron} --arch=x64 --dist-url=https://electronjs.org/headers --debug
+npx node-gyp rebuild --target=${electron} --arch=x64 --dist-url=https://electronjs.org/headers
 
