@@ -36,3 +36,6 @@ if [[ -z $CHENGYU_LOCAL ]]; then
 else
     echo $CHENGYU_LOCAL
 fi
+
+cd node_modules/sharp
+echo $(pwd)

@@ -42,7 +42,9 @@ npm i node-gyp@5.0.7 -D -E
 
 npm i sharp@0.23.4 -D -E
 
+#echo "重新编译sharp"
 #cd node_modules/sharp
+#echo "切换到sharp目录下: $(pwd)"
 #export HOME="~/.electron-gyp"
 #npx node-gyp rebuild --target=${electron} --arch=x64 --dist-url=https://electronjs.org/headers --debug
 
