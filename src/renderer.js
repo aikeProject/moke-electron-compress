@@ -8,7 +8,6 @@ const {ipcRenderer, remote} = require('electron');
 const path = require('path');
 const uuidV4 = require('uuid/v4');
 const mkdirp = require('mkdirp');
-const sharp = require('sharp');
 
 require('./styles/index.css');
 
@@ -217,6 +216,7 @@ function compressOne(file) {
     if (resizeHeight) resizeOption.height = resizeHeight;
 
     return new Promise((resolve, reject) => {
+        const sharp = require('sharp');
         let fileData = sharp(file.path);
 
         const type = file.type;
