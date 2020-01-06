@@ -68,7 +68,9 @@ package.json 配置
 
 - `npm run start-renderer-dev` 启动渲染进程
 - `npm run start-main-dev` 启动主进程
-- `webpack` 配置主要需要注意构建目标 `target` 配置，对于主进程使用`electron-main`,渲染进程`electron-renderer` 
+- `npm start` 先启动渲染进程，再启动主进程
+- `webpack` 配置主要需要注意构建目标 `target` 配置，对于主进程使用`electron-main`,渲染进程`electron-renderer`
+<br/> 
 [详见](https://www.webpackjs.com/configuration/target/#target)
 
 ##### 本地开发时的一些问题
