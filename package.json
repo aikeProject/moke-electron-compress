@@ -4,8 +4,7 @@
   "description": "electron构建的简单压缩工具",
   "main": "build/main.js",
   "scripts": {
-    "preinstall": "bash dd.sh",
-    "start": "concurrently \"wait-on http://localhost:3000 && npm run start-main-dev\" \"npm run start-renderer-dev\"",
+    "start": "concurrently \"wait-on http://localhost:3000/ && npm run start-main-dev\" \"npm run start-renderer-dev\"",
     "start-renderer-dev": "webpack-dev-server --config webpack.config.js --mode=development",
     "start-main-dev": "nodemon --watch src --exec \"electron src/main.js --debug\"",
     "start:watch": "concurrently \"npm run build:watch\" \"npm run dev\"",
@@ -41,19 +40,17 @@
     "concurrently": "^5.0.0",
     "cross-env": "^6.0.3",
     "css-loader": "^3.2.0",
-    "electron": "7.1.2",
-    "electron-builder": "21.2.0",
-    "electron-is-dev": "1.1.0",
-    "electron-rebuild": "1.8.8",
-    "electron-squirrel-startup": "1.0.0",
+    "electron": "^7.1.2",
+    "electron-builder": "^21.2.0",
+    "electron-is-dev": "^1.1.0",
+    "electron-squirrel-startup": "^1.0.0",
     "html-webpack-plugin": "^3.2.0",
     "less": "^3.10.3",
     "less-loader": "^5.0.0",
     "mkdirp": "^0.5.1",
-    "node-gyp": "5.0.7",
     "node-loader": "^0.6.0",
     "nodemon": "^2.0.1",
-    "sharp": "0.23.4",
+    "sharp": "^0.23.3",
     "style-loader": "^1.0.1",
     "uuid": "^3.3.3",
     "wait-on": "^3.3.0",
@@ -64,10 +61,10 @@
     "webpack-merge": "^4.2.2"
   },
   "dependencies": {},
-  "homepage": "https://github.com/aikeProject/moke-electron-compress",
+  "homepage": "./",
   "build": {
     "appId": "mokeCompress",
-    "productName": "Moke-Compress",
+    "productName": "MOKE压缩图片",
     "copyright": "Copyright © 2019 ${author}",
     "files": [
       "build/**/*",
@@ -123,13 +120,6 @@
       "allowToChangeInstallationDirectory": true,
       "oneClick": false,
       "perMachine": false
-    },
-    "linux": {
-      "target": [
-        "deb",
-        "rpm"
-      ],
-      "artifactName": "${productName}-Web-Setup-${version}.${ext}"
     }
   }
 }
