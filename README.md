@@ -221,10 +221,26 @@ npm i electron-builder -D
 - `npm run pack` 本地开发，用来分析包内容时使用
 - `npm run release` 打包发布，生成一个`release`版本
 
+##### 本地开发时的一些问题
+
+- 下载electron很慢，我那个墙翻了也慢... 
+
 ```
-在国内打包的会后会下载一个文件
+# 在国内打包的会后会下载
 "https://github.com/electron/electron/releases/download/v7.1.2/electron-v7.1.2-darwin-x64.zip",
-特别慢，就算我翻了墙也慢(...)，所以才使用了"github actions"
+# 这样的文件，特别慢，就算我翻了墙也慢
+
+# 解决办法，使用国内镜像源安装
+```
+
+- 使用electron-builder换源
+
+```
+"build": {
+    "electronDownload": {
+      "mirror": "https://npm.taobao.org/mirrors/electron/"
+    },
+}
 ```
 
 #### `github actions` 持续集成
