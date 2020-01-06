@@ -5,6 +5,7 @@
   "main": "build/main.js",
   "scripts": {
     "preinstall": "bash preinstall.sh",
+    "prestart": "",
     "start": "concurrently \"wait-on http://localhost:3000 && npm run start-main-dev\" \"npm run start-renderer-dev\"",
     "start-renderer-dev": "webpack-dev-server --config webpack.config.js --mode=development",
     "start-main-dev": "nodemon --watch src --exec \"electron src/main.js --debug\"",
