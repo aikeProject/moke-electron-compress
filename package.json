@@ -17,7 +17,7 @@
     "pack": "electron-builder --dir",
     "predist": "npm run build:pro",
     "dist": "electron-builder",
-    "prerelease": "npm run build:pro && bash prebuild.sh",
+    "prerelease": "bash prebuild.sh && npm run build:pro",
     "release": "electron-builder",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
