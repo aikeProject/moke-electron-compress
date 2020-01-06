@@ -32,6 +32,8 @@ if [[ -z $NO_LOCAL ]]; then
     export SHARP_DIST_BASE_URL="https://npm.taobao.org/mirrors/sharp-libvips/v8.8.1/"
 
     npm i electron@${electron} -D -E
+
+    npm i sharp@0.23.4 -E
 fi
 
 if [[ ${sharp} == true ]]; then
@@ -49,12 +51,9 @@ if [[ ${sharp} == true ]]; then
     # https://electronjs.org/docs/tutorial/using-native-node-modules#%E4%B8%BA-electron-%E6%89%8B%E5%8A%A8%E7%BC%96%E8%AF%91
     npm i node-gyp@5.0.7 -D -E
 
-    npm i sharp@0.23.4 -E
-
     echo "重新编译sharp"
     cd node_modules/sharp
     echo "切换到sharp目录下: $(pwd)"
     echo "npx node-gyp rebuild --target=${electron} --arch=x64 --dist-url=https://electronjs.org/headers"
-    #export HOME="~/.electron-gyp"
     npx node-gyp rebuild --target=${electron} --arch=x64 --dist-url=https://electronjs.org/headers
 fi

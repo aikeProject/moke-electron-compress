@@ -47,11 +47,22 @@
 
 #### 压缩图片使用的工具 `sharp` [sharp](https://github.com/lovell/sharp)
 
+- `sharp`在`electron`中使用，需要重新编译
+- [electron-rebuild](https://electronjs.org/docs/tutorial/using-native-node-modules#%E4%B8%BA-electron-%E5%AE%89%E8%A3%85%E5%B9%B6%E9%87%8D%E6%96%B0%E7%BC%96%E8%AF%91%E6%A8%A1%E5%9D%97)
+
 ```
-npm i sharp
+package.json 配置
+"scripts": {
+    "postinstall": "npx electron-rebuild"
+}
+
+在npm install之后，执行electron-rebuild进行重新编译即可，electron-rebuild只会重新编译，dependencies中的包
 ```
 
-#### 开发环境搭建 
+- [node-gyp手动编译](https://electronjs.org/docs/tutorial/using-native-node-modules#%E4%B8%BA-electron-%E5%AE%89%E8%A3%85%E5%B9%B6%E9%87%8D%E6%96%B0%E7%BC%96%E8%AF%91%E6%A8%A1%E5%9D%97)
+- [preinstall.sh](preinstall.sh)
+
+#### 开发环境搭建
 
 [环境搭建参考项目](https://github.com/electron-react-boilerplate/electron-react-boilerplate)
 
@@ -59,6 +70,28 @@ npm i sharp
 - `npm run start-main-dev` 启动主进程
 - `webpack` 配置主要需要注意构建目标 `target` 配置，对于主进程使用`electron-main`,渲染进程`electron-renderer` 
 [详见](https://www.webpackjs.com/configuration/target/#target)
+
+##### 本地开发时的一些问题
+
+- `electron`换源安装 [electron](https://blog.tomyail.com/install-electron-slow-in-china/)
+
+```
+# 在国内打包的会后会下载
+"https://github.com/electron/electron/releases/download/v7.1.2/electron-v7.1.2-darwin-x64.zip",
+# 这样的文件，特别慢，就算我翻了墙也慢
+
+# 解决办法，使用国内镜像源安装
+```
+
+- `electron-builder`换源安装打包所需要的资源
+
+```
+"build": {
+    "electronDownload": {
+      "mirror": "https://npm.taobao.org/mirrors/electron/"
+    },
+}
+```
 
 #### 本地开发项目运行
 
@@ -171,7 +204,9 @@ npm i electron-builder -D
 }
 ```
 
-- 打包优化 [详细](https://imweb.io/topic/5b6817b5f6734fdf12b4b09c)
+- 打包优化
+[详细](https://imweb.io/topic/5b6817b5f6734fdf12b4b09c)
+[详细](https://imweb.io/topic/5b9f500cc2ec8e6772f34d79)
 
 ```
 主要思路：(js、css、html....)等资源，先用`webpack`打包，
@@ -187,8 +222,13 @@ npm i electron-builder -D
     npm install -g asar
     
     # 解压到 ./app 文件夹下
-    asar extarct app.asar ./app
+    asar e app.asar ./app
     ```
+
+<p>
+<img width="400" src="./docs/app.asar.jpg" alt="app.asar">
+<img width="400" src="./docs/app.jpg" alt="app">
+</p>
 
 #### 打包发布配置，自动发布release
 [详情](https://www.electron.build/configuration/publish)
@@ -220,28 +260,6 @@ npm i electron-builder -D
 
 - `npm run pack` 本地开发，用来分析包内容时使用
 - `npm run release` 打包发布，生成一个`release`版本
-
-##### 本地开发时的一些问题
-
-- 下载electron很慢，我那个墙翻了也慢... 
-
-```
-# 在国内打包的会后会下载
-"https://github.com/electron/electron/releases/download/v7.1.2/electron-v7.1.2-darwin-x64.zip",
-# 这样的文件，特别慢，就算我翻了墙也慢
-
-# 解决办法，使用国内镜像源安装
-```
-
-- 使用electron-builder换源
-
-```
-"build": {
-    "electronDownload": {
-      "mirror": "https://npm.taobao.org/mirrors/electron/"
-    },
-}
-```
 
 #### `github actions` 持续集成
 [github actions](https://help.github.com/cn/actions/automating-your-workflow-with-github-actions/getting-started-with-github-actions)
