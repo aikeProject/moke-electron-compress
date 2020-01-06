@@ -8,7 +8,12 @@ const {ipcRenderer, remote} = require('electron');
 const path = require('path');
 const uuidV4 = require('uuid/v4');
 const mkdirp = require('mkdirp');
-const sharp = require('sharp');
+try {
+    sharp = require('sharp');
+} catch (e) {
+    console.log(e);
+}
+
 
 require('./styles/index.css');
 
@@ -186,8 +191,7 @@ function compressBtn() {
     if (compressing) {
         compress.setAttribute('disabled', 'true');
         compress.children[0].style.display = '';
-    }
-    else {
+    } else {
         compress.removeAttribute('disabled');
         compress.children[0].style.display = 'none';
     }
