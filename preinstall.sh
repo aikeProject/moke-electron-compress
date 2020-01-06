@@ -10,7 +10,7 @@ electron="7.1.2"
 # 淘宝镜像仓库 https://npm.taobao.org/mirrors/
 
 # 打印debug信息，查看是否换源成功
-export DEBUG="*"
+#export DEBUG="*"
 
 # 是不是本地开发,NO_LOCAL在git action里设置的这个环境变量
 # -z 检查变量是否为空
@@ -31,7 +31,7 @@ npm i electron@${electron} -D -E
 if [[ `command -v python` ]];then
     echo 'python 已经安装...'
     echo "安装的python版本为：$(python --version)"
-    echo "\n"
+    printf "\n"
 else
    echo '需要安装python...'
 fi
@@ -42,7 +42,7 @@ npm i node-gyp@5.0.7 -D -E
 
 npm i sharp@0.23.4 -D -E
 
-cd node_modules/sharp
-export HOME="~/.electron-gyp"
-npx node-gyp rebuild --target=${electron} --arch=x64 --dist-url=https://electronjs.org/headers --debug
+#cd node_modules/sharp
+#export HOME="~/.electron-gyp"
+#npx node-gyp rebuild --target=${electron} --arch=x64 --dist-url=https://electronjs.org/headers --debug
 
