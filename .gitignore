@@ -2,6 +2,7 @@ node_modules
 *~
 .DS_Store
 .idea
+.gitignore_lock.json
 dist
 build/renderer
 build/main.js
