@@ -47,3 +47,9 @@ fi
 if [[ `command -v xcode` ]]; then
     echo 'xcode'
 fi
+
+a=false
+
+if [[ ${a} == false ]]; then
+    echo "false"
+fi
