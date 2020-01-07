@@ -27,12 +27,12 @@ const createWindow = () => {
         : `file://${path.join(__dirname, './renderer/index.html')}`;
 
     mainWindow = new AppWindow({
-        width: 300,
+        width: dev ? 800: 300,
         height: 350,
     }, mainUrl);
 
     // Open the DevTools.
-    // dev && mainWindow.webContents.openDevTools();
+    dev && mainWindow.webContents.openDevTools();
 
     // 设置菜单
     let menu = Menu.buildFromTemplate(menuTemplate);

@@ -59,6 +59,19 @@ const chunk = (arr, size) => {
     );
 };
 
+const firstLastArr = (arr, size) => {
+    let first = [], last = [];
+    (arr || []).forEach(((value, index) => {
+        if (index < size) first = [...first, value];
+        else last = [...last, value];
+    }));
+
+    return {
+        first,
+        last
+    }
+};
+
 function flattenSize(size) {
     if (size > 1024 * 1024) return `${(size / 1024 / 1024).toFixed(2)}MB`;
 
@@ -151,7 +164,6 @@ function compressInfo(file, resolve) {
         compressing = compressDone();
 
         console.log(file.name);
-        console.log('done...');
 
         render(filesMap);
 
@@ -280,49 +292,47 @@ function compress() {
 
     render(filesMap);
 
-    const chunks = chunk(files, chunkCount);
+    const firstLast = firstLastArr(files, 3);
+    let groupDone = false;
 
-    const chunkLength = chunks.length;
-    let a = 0;
+    const fn1 = () => {
+        const one = firstLast.last.shift();
 
-    const fn = () => {
-
-        const oneChunk = chunks.shift();
-
-        if (oneChunk) {
-
-            let runChunk = oneChunk.map(file => {
-                return compressOne(file)
+        if (one) {
+            compressOne(one).finally(() => {
+                fn1();
             });
+        } else if (compressing && groupDone) {
+            compressing = false;
 
-            // allSettled 只有等到所有这些参数实例都返回结果
-            // 不管是fulfilled还是rejected，包装实例才会结束
-            Promise.allSettled(runChunk).then(() => {
-                a++;
-                console.log('done chunk.....' + a);
+            render(filesMap);
 
-                if (a === chunkLength) {
+            const errorCount = objToArr(filesMap).reduce((preCount, item) => {
+                if (item.error) return ++preCount;
+                return preCount;
+            }, 0);
 
-                    compressing = false;
-
-                    render(filesMap);
-
-                    const errorCount = objToArr(filesMap).reduce((preCount, item) => {
-                        if (item.error) return ++preCount;
-                        return preCount;
-                    }, 0);
-
-                    new window.Notification('MOKE压缩', {
-                        body: `总数：${files.length}，成功: ${files.length - errorCount}，失败：${errorCount}`
-                    });
-                }
-
-                fn();
+            new window.Notification('压缩提示', {
+                body: `总数：${files.length}，成功: ${files.length - errorCount}，失败：${errorCount}`
             });
         }
+
     };
 
-    fn();
+    if (firstLast.first.length) {
+
+        let runFnGroup = firstLast.first.map(file => {
+            return compressOne(file).finally(() => {
+                fn1();
+            });
+        });
+
+        // allSettled 只有等到所有这些参数实例都返回结果
+        // 不管是fulfilled还是rejected，包装实例才会结束
+        Promise.allSettled(runFnGroup).then(() => {
+            groupDone = true;
+        });
+    }
 }
 
 function handleDrop(e) {
