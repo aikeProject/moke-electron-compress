@@ -6,8 +6,16 @@
 
 const {ipcRenderer, remote} = window.require('electron');
 const {serializeArray} = require('./util.js');
+const path = window.require('path');
 
 require('./styles/setting.css');
+
+// 默认保存到桌面
+let outPath = remote.app.getPath('desktop');
+// 默认输出到此文件夹
+const defaultOutDir = 'moke-compress';
+
+document.querySelector('#outPath').value = path.join(outPath, defaultOutDir);
 
 document.querySelector('#select').addEventListener('click', () => {
 

@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: node版本 ${{ matrix.node_version }} 操作系统 ${{ matrix.os }}
+    name: ${{ matrix.os }} node ${{ matrix.node-version }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
