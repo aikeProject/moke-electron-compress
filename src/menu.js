@@ -7,7 +7,7 @@
 const { app, shell, ipcMain } = require('electron');
 
 // 应用名称
-app.name = 'MOKE压缩工具';
+app.name = 'moke';
 
 let template = [
     {

@@ -9,7 +9,7 @@
 #### 下载
 
 - `Mac` 
-- `windows` 
+- `windows`
 - `linux`
 
 [release](https://github.com/aikeProject/moke-electron-compress/releases)
@@ -68,32 +68,9 @@ package.json 配置
 
 - `npm run start-renderer-dev` 启动渲染进程
 - `npm run start-main-dev` 启动主进程
-- `npm start` 先启动渲染进程，再启动主进程
 - `webpack` 配置主要需要注意构建目标 `target` 配置，对于主进程使用`electron-main`,渲染进程`electron-renderer`
 <br/> 
 [详见](https://www.webpackjs.com/configuration/target/#target)
-
-##### 本地开发时的一些问题
-
-- `electron`换源安装 [electron](https://blog.tomyail.com/install-electron-slow-in-china/)
-
-```
-# 在国内打包的会后会下载
-"https://github.com/electron/electron/releases/download/v7.1.2/electron-v7.1.2-darwin-x64.zip",
-# 这样的文件，特别慢，就算我翻了墙也慢
-
-# 解决办法，使用国内镜像源安装
-```
-
-- `electron-builder`换源安装打包所需要的资源
-
-```
-"build": {
-    "electronDownload": {
-      "mirror": "https://npm.taobao.org/mirrors/electron/"
-    },
-}
-```
 
 #### 本地开发项目运行
 
@@ -109,6 +86,41 @@ package.json 配置
 - `npm run pack` 生成宝目录文件，用于分析
 - `npm run dist` 打包成安装包
 - `npm run release` 打包并发布
+
+##### 本地开发时的一些问题
+
+- `electron`换源安装
+    [electron换源](https://blog.tomyail.com/install-electron-slow-in-china/)
+
+```
+# 在国内打包的会后会下载
+"https://github.com/electron/electron/releases/download/v7.1.2/electron-v7.1.2-darwin-x64.zip",
+# 这样的文件，特别慢，就算我翻了墙也慢
+
+# 解决办法，使用国内镜像源安装
+```
+
+<p>
+<img width="400" src="./docs/electron-install.jpg" alt="app.asar">
+<img width="400" src="./docs/electron-install-cache.jpg" alt="app">
+</p>
+
+- `sharp`换源安装
+
+<p>
+<img width="400" src="./docs/sharp-install.jpg" alt="app.asar">
+<img width="400" src="./docs/sharp-install-caceh.jpg" alt="app">
+</p>
+
+- `electron-builder`换源安装打包所需要的资源
+  [详见](https://www.electron.build/configuration/configuration.html)
+```
+"build": {
+    "electronDownload": {
+      "mirror": "https://npm.taobao.org/mirrors/electron/"
+    },
+}
+```
 
 #### `Electron` 打包相关
 
@@ -233,11 +245,13 @@ npm i electron-builder -D
 </p>
 
 #### 打包发布配置，自动发布release
-[详情](https://www.electron.build/configuration/publish)
-[github releases文档](https://help.github.com/cn/github/administering-a-repository/creating-releases)
-[github releases api 文档](https://developer.github.com/v3/repos/releases/#create-a-release)
 
-- 将项目关联到 github
+[详见](https://www.electron.build/configuration/publish) <br/>
+[github releases文档](https://help.github.com/cn/github/administering-a-repository/creating-releases)
+<br/>
+[github releases api 文档](https://developer.github.com/v3/repos/releases/#create-a-release)
+<br/>
+
 - `package.json配置`
 
 ```
@@ -248,9 +262,10 @@ npm i electron-builder -D
 }
 ```
 
-- 生成 GitHub personal access token [add token](https://github.com/settings/tokens/new),
-生成token后添加如下配置，将`GH_TOKEN`添加到环境变量中，当`npm run release`运行的时候，`electron-builder`会自动
-帮我们上传到 github release
+- 生成 GitHub personal access token
+  [add token](https://github.com/settings/tokens/new),
+  生成token后添加如下配置，将`GH_TOKEN`添加到环境变量中，当`npm run
+  release`运行的时候，`electron-builder`会自动 帮我们上传到 github release
 
 ```
 "release": "cross-env GH_TOKEN=e9780fa2016917b730babef1371b3593a58a99b5 electron-builder",
@@ -260,10 +275,11 @@ npm i electron-builder -D
 
 #### 应用打包，生成安装包
 
-- `npm run pack` 本地开发，用来分析包内容时使用
+- `npm run pack` 本地开发时，用来分析包内容时使用
 - `npm run release` 打包发布，生成一个`release`版本
 
 #### `github actions` 持续集成
+
 [github actions](https://help.github.com/cn/actions/automating-your-workflow-with-github-actions/getting-started-with-github-actions)
 <br/>
 [创建 JavaScript 操作](https://help.github.com/cn/actions/automating-your-workflow-with-github-actions/creating-a-javascript-action)
@@ -284,7 +300,7 @@ on:
 
 jobs:
   build:
-    name: Test on node ${{ matrix.node_version }} and ${{ matrix.os }}
+    name: node版本 ${{ matrix.node_version }} 操作系统 ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -303,20 +319,20 @@ jobs:
       run: |
         npm ci
         npm run release
-      # node环境变量
+      # 环境变量
       env:
         CI: true
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        NO_LOCAL: true
 ```
 
 #### 知识点
 
-- 拖放(Drag 与 drop) 
-[详见](https://www.cnblogs.com/sqh17/p/8676983.html) 
-<br/>
-[文档](https://developer.mozilla.org/zh-CN/docs/Web/API/HTML_Drag_and_Drop_API)
-<br/>
-[浏览器兼容性](https://www.caniuse.com/#feat=dragndrop)
+- 拖放(Drag 与 drop) <br/>
+
+  [详见](https://www.cnblogs.com/sqh17/p/8676983.html) <br/>
+  [文档](https://developer.mozilla.org/zh-CN/docs/Web/API/HTML_Drag_and_Drop_API)<br/>
+  [浏览器兼容性](https://www.caniuse.com/#feat=dragndrop)
 
 ```text
 在拖动目标上触发事件 (源元素):
@@ -331,10 +347,9 @@ jobs:
 ```
 
 - Html5 通知, `Notifications API` 的通知接口用于向用户配置和显示桌面通知
-<br/>
-[详见](https://developer.mozilla.org/zh-CN/docs/Web/API/notification)
-<br/>
-[浏览器兼容性](https://www.caniuse.com/#search=Notifications)
+
+    [详见](https://developer.mozilla.org/zh-CN/docs/Web/API/notification)<br/>
+    [浏览器兼容性](https://www.caniuse.com/#search=Notifications)
 
 ```text
 let notification = new Notification(title, options)

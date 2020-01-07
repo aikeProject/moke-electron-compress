@@ -7,14 +7,12 @@ on:
 
 jobs:
   build:
-    name: node ${{ matrix.node_version }} and ${{ matrix.os }}
+    name: node版本 ${{ matrix.node_version }} 操作系统 ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-
     strategy:
       matrix:
         node-version: [10.x]
-        os: [macOS-latest]
-#        os: [macOS-latest, windows-latest, ubuntu-latest]
+        os: [macOS-latest, windows-latest, ubuntu-latest]
 
     steps:
     - uses: actions/checkout@v1
@@ -24,7 +22,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: npm install, build, release
       run: |
-        npm i
+        npm ci
         npm run release
       env:
         CI: true
