@@ -1,9 +1,18 @@
 ### electron 图片压缩工具
+- mac   
 
 <p>
     <img width="200" src="./docs/moke1.jpg" alt="compress1">
     <img width="200" src="./docs/moke2.jpg" alt="compress2">
     <img width="200" src="./docs/moke3.jpg" alt="compress3">
+</p>
+
+- win   
+
+<p>
+    <img width="200" src="./docs/moke-win-1.png" alt="compress-win-1">
+    <img width="200" src="./docs/moke-win-2.png" alt="compress-win-2">
+    <img width="200" src="./docs/moke-win-3.png" alt="compress-win-3">
 </p>
 
 #### 下载
@@ -119,6 +128,7 @@
 
   <p>
     <img width="600" src="./docs/winCodeSign.png" alt="winCodeSign">
+    <img width="600" src="./docs/win-build-info.png" alt="win-build-info">
   </p>
 
   ```
