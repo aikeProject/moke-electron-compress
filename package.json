@@ -55,6 +55,7 @@
     "node-loader": "^0.6.0",
     "nodemon": "^2.0.1",
     "style-loader": "^1.0.1",
+    "tinify": "^1.6.0-beta.2",
     "uuid": "^3.3.3",
     "wait-on": "^3.3.0",
     "webpack": "^4.41.2",
@@ -64,6 +65,7 @@
     "webpack-merge": "^4.2.2"
   },
   "dependencies": {
+    "electron-store": "^5.1.0",
     "sharp": "0.23.4"
   },
   "homepage": "./",

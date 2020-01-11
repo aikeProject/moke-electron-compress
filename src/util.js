@@ -5,7 +5,7 @@
  */
 
 function serializeArray(_this) {
-    console.log(_this);
+
     var name, type, result = [],
         add = function(value) {
             if (value.forEach) return value.forEach(add)

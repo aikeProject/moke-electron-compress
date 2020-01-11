@@ -25,13 +25,13 @@ let compressing = false;
 // 默认保存到桌面
 let outPath = remote.app.getPath('desktop');
 // 默认输出到此文件夹
-const defaultOutDir = 'moke-compress';
+const defaultOutDir = 'MokeCompress';
 // 默认压缩质量
 let quality = 70;
 // 是否压缩
 let noCompress = false;
 // 分组压缩 默认 6
-let chunkCount = 6;
+let chunkCount = 5;
 // resize width height
 let resizeWidth, resizeHeight;
 
@@ -275,7 +275,7 @@ function compress() {
     if (!files.length) return;
     if (compressing) return;
     if (noCompress && !resizeWidth && !resizeHeight) {
-        remote.dialog.showErrorBox('提示', '请正确设置压缩选项');
+        remote.dialog.showErrorBox('提示', '请正确设置压缩配置');
         return;
     }
     compressing = true;
@@ -292,7 +292,7 @@ function compress() {
 
     render(filesMap);
 
-    const firstLast = firstLastArr(files, 3);
+    const firstLast = firstLastArr(files, chunkCount);
     let groupDone = false;
 
     const fn1 = () => {
@@ -312,7 +312,7 @@ function compress() {
                 return preCount;
             }, 0);
 
-            new window.Notification('压缩提示', {
+            new window.Notification('完成', {
                 body: `总数：${files.length}，成功: ${files.length - errorCount}，失败：${errorCount}`
             });
         }
