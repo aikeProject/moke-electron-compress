@@ -6,7 +6,8 @@
 
 const {
     ipcRenderer,
-    remote
+    remote,
+    shell
 } = window.require('electron');
 const path = window.require('path');
 const fs = window.require('fs');
@@ -221,9 +222,16 @@ function compressDone() {
         console.log(filesMap);
         console.log('---  files ---');
 
-        new window.Notification('压缩提示', {
+        const notification = new window.Notification('压缩提示', {
             body: `总数：${files.length}，成功: ${files.length - errorCount}，失败：${errorCount}`
         });
+
+        notification.onclick = function(event) {
+            event.preventDefault();
+            
+            // 打开文件保存位置
+            shell.showItemInFolder(path.join(outPath, defaultOutDir, files[0].name));
+          }
     }
 }
 
