@@ -4,8 +4,12 @@
  * @Description:
  */
 
-const {ipcRenderer, remote} = window.require('electron');
+const {
+    ipcRenderer,
+    remote
+} = window.require('electron');
 const path = window.require('path');
+const fs = window.require('fs');
 const uuidV4 = require('uuid/v4');
 const mkdirp = require('mkdirp');
 const sharp = window.require('sharp');
@@ -54,13 +58,16 @@ const objToArr = (obj) => {
 };
 
 const chunk = (arr, size) => {
-    return Array.from({length: Math.ceil(arr.length / size)}, (v, i) =>
+    return Array.from({
+            length: Math.ceil(arr.length / size)
+        }, (v, i) =>
         arr.slice(i * size, i * size + size)
     );
 };
 
 const firstLastArr = (arr, size) => {
-    let first = [], last = [];
+    let first = [],
+        last = [];
     (arr || []).forEach(((value, index) => {
         if (index < size) first = [...first, value];
         else last = [...last, value];
@@ -86,17 +93,19 @@ function filterSource(source) {
         return fileType.test(file.type)
     });
 
-    files = files.map(file => ({
-        id: uuidV4().split('-').join(''),
-        name: file.name,
-        path: file.path,
-        size: file.size,
-        type: file.type.split('/')[1],
-        compress: false,
-        compressSize: null,
-        done: false,
-        error: false
-    }));
+    files = files.map(file => {
+        return {
+            id: uuidV4().split('-').join(''),
+            name: file.name,
+            path: file.path,
+            size: file.size,
+            type: path.extname(file.name),
+            compress: false,
+            compressSize: null,
+            done: false,
+            error: false
+        }
+    });
 
     filesMap = flattenArr(files);
 
@@ -119,8 +128,8 @@ function render(files) {
 
         if (!file.error) {
             const done = file.done ? 'bg-success' : 'progress-bar-striped';
-            const pending = file.compress
-                ? 'progress-bar-animated bg-success' :
+            const pending = file.compress ?
+                'progress-bar-animated bg-success' :
                 file.done ? '' : 'bg-warning';
             progress = `progress-bar ${done} ${pending}`;
         } else {
@@ -150,7 +159,12 @@ function render(files) {
 }
 
 function compressInfo(file, resolve) {
-    return (info) => {
+    return ({ data, info }) => {
+
+        const out = path.join(outPath, defaultOutDir, file.name);
+
+        fs.writeFileSync(out, data);
+
         filesMap = {
             ...filesMap,
             [file.id]: {
@@ -160,8 +174,6 @@ function compressInfo(file, resolve) {
                 done: true,
             }
         };
-
-        compressing = compressDone();
 
         console.log(file.name);
 
@@ -177,6 +189,7 @@ function compressError(file, reject) {
             ...filesMap,
             [file.id]: {
                 ...file,
+                done: true,
                 error: true
             }
         };
@@ -190,7 +203,28 @@ function compressError(file, reject) {
 }
 
 function compressDone() {
-    return !Object.values(filesMap).every(file => file.done);
+
+    const allDone = Object.values(filesMap).every(file => file.done);
+    const files = Object.values(filesMap);
+
+    if (allDone) {
+        compressing = false;
+
+        render(filesMap);
+
+        const errorCount = objToArr(filesMap).reduce((preCount, item) => {
+            if (item.error) return ++preCount;
+            return preCount;
+        }, 0);
+
+        console.log('---  files ---');
+        console.log(filesMap);
+        console.log('---  files ---');
+
+        new window.Notification('压缩提示', {
+            body: `总数：${files.length}，成功: ${files.length - errorCount}，失败：${errorCount}`
+        });
+    }
 }
 
 function compressBtn() {
@@ -209,7 +243,13 @@ window.timeout = null;
 
 function compressRetry(id) {
     const file = filesMap[id];
-    filesMap[id] = {...file, compress: true, done: false, error: false, compressSize: null};
+    filesMap[id] = {
+        ...file,
+        compress: true,
+        done: false,
+        error: false,
+        compressSize: null
+    };
 
     render(filesMap);
 
@@ -223,7 +263,7 @@ function compressRetry(id) {
 
 window.compressRetry = compressRetry;
 
-function compressOne(file) {
+async function compressOne(file) {
 
     if (resizeWidth) resizeOption.width = resizeWidth;
     if (resizeHeight) resizeOption.height = resizeHeight;
@@ -235,8 +275,6 @@ function compressOne(file) {
 
         if (!type) return;
 
-        const out = path.join(outPath, defaultOutDir, file.name);
-
         if (!noCompress) {
             switch (type) {
                 case "png":
@@ -244,9 +282,7 @@ function compressOne(file) {
                         .png(defaultOpt);
                     break;
                 case "jpg":
-                    fileData = fileData
-                        .jpg(defaultOpt);
-                    break;
+                    ;
                 case "jpeg":
                     fileData = fileData
                         .jpeg(defaultOpt);
@@ -261,8 +297,10 @@ function compressOne(file) {
             fileData = fileData.resize(resizeOption)
         }
 
+        // toBuffer 转换成buffer之后，拿到压缩后的信息，在保存到文件
+        // toFile windows下输出文件，info信息里没有压缩后的size字段
         fileData
-            .toFile(out)
+            .toBuffer({ resolveWithObject: true })
             .then(compressInfo(file, resolve))
             .catch(compressError(file, reject));
     });
@@ -293,7 +331,6 @@ function compress() {
     render(filesMap);
 
     const firstLast = firstLastArr(files, 3);
-    let groupDone = false;
 
     const fn1 = () => {
         const one = firstLast.last.shift();
@@ -301,22 +338,10 @@ function compress() {
         if (one) {
             compressOne(one).finally(() => {
                 fn1();
-            });
-        } else if (compressing && groupDone) {
-            compressing = false;
 
-            render(filesMap);
-
-            const errorCount = objToArr(filesMap).reduce((preCount, item) => {
-                if (item.error) return ++preCount;
-                return preCount;
-            }, 0);
-
-            new window.Notification('压缩提示', {
-                body: `总数：${files.length}，成功: ${files.length - errorCount}，失败：${errorCount}`
+                compressDone();
             });
         }
-
     };
 
     if (firstLast.first.length) {
@@ -330,7 +355,7 @@ function compress() {
         // allSettled 只有等到所有这些参数实例都返回结果
         // 不管是fulfilled还是rejected，包装实例才会结束
         Promise.allSettled(runFnGroup).then(() => {
-            groupDone = true;
+            compressDone();
         });
     }
 }
