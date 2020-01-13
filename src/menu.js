@@ -4,12 +4,47 @@
  * @Description:
  */
 
-const { app, shell, ipcMain } = require('electron');
+const {app, shell, ipcMain} = require('electron');
 
+const isMac = process.platform === 'darwin';
 // 应用名称
 app.name = 'moke';
 
 let template = [
+    {
+        label: '编辑',
+        submenu: [
+            {
+                label: '撤销',
+                role: 'undo'
+            },
+            {
+                label: '重做',
+                role: 'redo'
+            },
+            {type: 'separator'},
+            {
+                label: '剪切',
+                role: 'cut'
+            },
+            {
+                label: '复制',
+                role: 'copy'
+            },
+            {
+                label: '粘贴',
+                role: 'paste'
+            },
+            {
+                label: '删除',
+                role: 'delete'
+            },
+            {
+                label: '全选',
+                role: 'selectAll'
+            },
+        ]
+    },
     {
         label: '视图',
         submenu: [
@@ -36,7 +71,7 @@ let template = [
             },
             {
                 label: '切换开发者工具',
-                accelerator: (function() {
+                accelerator: (function () {
                     if (process.platform === 'darwin')
                         return 'Alt+Command+I';
                     else
@@ -68,13 +103,15 @@ let template = [
         submenu: [
             {
                 label: '学习更多',
-                click: () => { shell.openExternal('http://electron.atom.io') }
+                click: () => {
+                    shell.openExternal('http://electron.atom.io')
+                }
             },
         ]
     },
 ];
 
-if (process.platform === 'darwin') {
+if (isMac) {
     const name = app.name;
     template.unshift({
         label: name,

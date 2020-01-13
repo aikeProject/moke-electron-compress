@@ -14,6 +14,8 @@ const fs = window.require('fs');
 const uuidV4 = require('uuid/v4');
 const mkdirp = require('mkdirp');
 const sharp = window.require('sharp');
+const Store = window.require('electron-store');
+const {schemaConfig} = require('./config.js');
 
 require('./styles/index.css');
 
@@ -23,6 +25,10 @@ const versionElectron = process.versions.electron;
 console.log('渲染进程...');
 console.log(`👋 node version ${versionNode}`);
 console.log(`👋 electron version ${versionElectron}`);
+
+// 本地数据
+const settingsStore = new Store({name: 'Settings', schema: schemaConfig});
+settingsStore.clear();
 
 let filesMap = {};
 let compressing = false;
@@ -62,7 +68,7 @@ const chunk = (arr, size) => {
     return Array.from({
             length: Math.ceil(arr.length / size)
         }, (v, i) =>
-        arr.slice(i * size, i * size + size)
+            arr.slice(i * size, i * size + size)
     );
 };
 
@@ -160,7 +166,7 @@ function render(files) {
 }
 
 function compressInfo(file, resolve) {
-    return ({ data, info }) => {
+    return ({data, info}) => {
 
         const out = path.join(outPath, defaultOutDir, file.name);
 
@@ -226,12 +232,12 @@ function compressDone() {
             body: `总数：${files.length}，成功: ${files.length - errorCount}，失败：${errorCount}`
         });
 
-        notification.onclick = function(event) {
+        notification.onclick = function (event) {
             event.preventDefault();
 
             // 打开文件保存位置
             shell.showItemInFolder(path.join(outPath, defaultOutDir, files[0].name));
-          }
+        }
     }
 }
 
@@ -283,8 +289,6 @@ async function compressOne(file) {
 
         if (!type) return;
 
-        const out = path.join(outPath, defaultOutDir, file.name);
-
         if (!noCompress) {
             switch (type) {
                 case "png":
@@ -310,7 +314,7 @@ async function compressOne(file) {
         // toBuffer 转换成buffer之后，拿到压缩后的信息，在保存到文件
         // toFile windows下输出文件，info信息里没有压缩后的size字段
         fileData
-            .toBuffer({ resolveWithObject: true })
+            .toBuffer({resolveWithObject: true})
             .then(compressInfo(file, resolve))
             .catch(compressError(file, reject));
     });
@@ -417,6 +421,8 @@ document.querySelector('#compress').addEventListener('click', () => {
     console.log('压缩质量: ', quality);
     console.log('调整大小resize: ', `${resizeWidth} x ${resizeHeight}`);
     console.log('------ 压缩配置 ------');
+
+    console.log(settingsStore.get());
 
     compress()
 });

@@ -5,8 +5,9 @@
  */
 
 const {ipcRenderer, remote, shell} = window.require('electron');
-const {serializeArray} = require('./util.js');
 const path = window.require('path');
+const {serializeArray} = require('./util.js');
+const {schemaConfig, settingsKeyType} = require('./config.js');
 const Store = window.require('electron-store');
 
 require('./styles/setting.css');
@@ -16,11 +17,36 @@ let outPath = remote.app.getPath('desktop');
 // 默认输出到此文件夹
 const defaultOutDir = 'MokeCompress';
 // 本地数据
-const settingsStore = new Store({name: 'Settings'});
+const settingsStore = new Store({name: 'Settings', schema: schemaConfig});
 const sourceStore = new Store({name: 'source'});
 
-document.querySelector('#quality').value = '20';
-document.querySelector('#outPath').value = path.join(outPath, defaultOutDir);
+// 设置
+const tinifyKeyEl = document.querySelector('#tinifyKey');
+
+(sourceStore.get('tinifyKey') || []).map((key, index) => {
+    const option = document.createElement('option');
+    option.value = key;
+    option.innerText = key;
+    if (index === 0) option.selected = 'selected';
+
+    tinifyKeyEl.appendChild(option);
+});
+
+Object.keys(settingsKeyType).map((key) => {
+    if (settingsStore.get(key)) {
+        document.querySelector(`#${key}`)[settingsKeyType[key]] = settingsStore.get(key);
+    }
+});
+
+function getTinifyKeyArray() {
+    const tinifyKeyArray = [];
+
+    document.querySelectorAll('#tinifyKey > option').forEach((el) => {
+        tinifyKeyArray.push(el.value.trim());
+    });
+
+    return tinifyKeyArray;
+}
 
 document.querySelector('#select').addEventListener('click', () => {
 
@@ -29,7 +55,7 @@ document.querySelector('#select').addEventListener('click', () => {
         properties: ['openDirectory'],
         message: '选择压缩图片存储路径'
     }).then(({filePaths}) => {
-        document.querySelector('#outPath').value = filePaths[0] || ''
+        document.querySelector('#outPath').value = filePaths[0] || path.join(outPath, defaultOutDir);
     });
 
 });
@@ -51,21 +77,28 @@ document.querySelector('#settingSave').addEventListener('click', () => {
     console.log(result);
     result = result.reduce((pre, item) => {
         // settingsStore.set(item.name, item.value);
-        return {...pre, [item.name]: item.value};
+        return {...pre, [item.name]: item.value.trim()};
     }, {});
 
-    ipcRenderer.send('settings', result);
+    // ipcRenderer.send('settings', result);
 
     settingsStore.set(result);
 
-    const tinifyKeyArray = [];
-
-    document.querySelectorAll('#tinifyKey > option').forEach((el) => {
-        tinifyKeyArray.push(el.value);
-    });
+    const tinifyKeyArray = getTinifyKeyArray();
 
     sourceStore.set('tinifyKey', tinifyKeyArray);
     // remote.getCurrentWindow().close();
+});
+
+document.querySelector('#saveTinifyKey').addEventListener('click', () => {
+    const value = document.querySelector('#inTinifyKey').value;
+    const option = document.createElement('option');
+    option.value = value;
+    option.innerText = value;
+
+    if (!value || getTinifyKeyArray().indexOf(value) > -1) return;
+
+    tinifyKeyEl.appendChild(option);
 });
 
 const links = document.querySelectorAll('a[href]');
