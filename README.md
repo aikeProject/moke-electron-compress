@@ -58,7 +58,7 @@
 #### 压缩图片使用的工具 `sharp` [sharp](https://github.com/lovell/sharp)
 
 - `sharp`在`electron`中使用，需要重新编译
-- [electron-rebuild](https://electronjs.org/docs/tutorial/using-native-node-modules#%E4%B8%BA-electron-%E5%AE%89%E8%A3%85%E5%B9%B6%E9%87%8D%E6%96%B0%E7%BC%96%E8%AF%91%E6%A8%A1%E5%9D%97)
+- 第一种方法：[electron-rebuild](https://electronjs.org/docs/tutorial/using-native-node-modules#%E4%B8%BA-electron-%E5%AE%89%E8%A3%85%E5%B9%B6%E9%87%8D%E6%96%B0%E7%BC%96%E8%AF%91%E6%A8%A1%E5%9D%97)
 
   ```
   package.json 配置
@@ -69,17 +69,16 @@
   在npm install之后，执行electron-rebuild进行重新编译即可，electron-rebuild只会重新编译，dependencies中的包
   ```
 
-- [node-gyp手动编译](https://electronjs.org/docs/tutorial/using-native-node-modules#%E4%B8%BA-electron-%E5%AE%89%E8%A3%85%E5%B9%B6%E9%87%8D%E6%96%B0%E7%BC%96%E8%AF%91%E6%A8%A1%E5%9D%97)
-- [preinstall.sh](preinstall.sh)
+- 第二种方法：
 
-#### 开发环境搭建
+  - [node-gyp手动编译](https://electronjs.org/docs/tutorial/using-native-node-modules#%E4%B8%BA-electron-%E5%AE%89%E8%A3%85%E5%B9%B6%E9%87%8D%E6%96%B0%E7%BC%96%E8%AF%91%E6%A8%A1%E5%9D%97)参考
+  - [preinstall.sh](preinstall.sh) 手动编译脚本，在`npm install`之前就下载编译好sharp
 
-[环境搭建参考项目](https://github.com/electron-react-boilerplate/electron-react-boilerplate)
+#### 开发环境搭建 [参考项目](https://github.com/electron-react-boilerplate/electron-react-boilerplate)
 
 - `npm run start-renderer-dev` 启动渲染进程
 - `npm run start-main-dev` 启动主进程
-- `webpack` 配置主要需要注意构建目标 `target` 配置，对于主进程使用`electron-main`,渲染进程`electron-renderer`
-<br/> 
+- `webpack` 配置主要需要注意构建目标 `target` 配置，对于主进程使用`electron-main`,渲染进程`electron-renderer`。
 [详见](https://www.webpackjs.com/configuration/target/#target)
 
 #### 本地开发项目运行
@@ -93,7 +92,7 @@
   "wait-on" 的作用：等待"http://localhost:3000/"就绪，之后再启动"electron"
   ```
 
-- `npm run pack` 生成宝目录文件，用于分析
+- `npm run pack` 用于分析
 - `npm run dist` 打包成安装包
 - `npm run release` 打包并发布
 
@@ -101,6 +100,7 @@
 
 - `electron`换源安装
     - [electron换源](https://blog.tomyail.com/install-electron-slow-in-china/)
+    - electron安装脚本 [preinstall.sh](preinstall.sh)
 
   ```
   # 在国内打包的会后会下载
@@ -124,12 +124,6 @@
 
 - `electron-builder`换源安装打包所需要的资源
   - [详见](https://www.electron.build/configuration/configuration.html)
-  - [windows 下载 winCodeSign](https://www.cnblogs.com/chenweixuan/p/7693718.html) 这个文件不大，稍微等会也能下完
-
-  <p>
-    <img width="600" src="./docs/winCodeSign.png" alt="winCodeSign">
-    <img width="600" src="./docs/win-build-info.png" alt="win-build-info">
-  </p>
 
   ```
   // 设置electron-builder下载electron的源
@@ -139,6 +133,14 @@
       },
   }
   ```
+
+  - 有一些打包时需要的依赖包，是换不了源的，只能等待他正常安装
+  - 比如：[windows 下载 winCodeSign](https://www.cnblogs.com/chenweixuan/p/7693718.html) 这个文件不大，稍微等会也能下完
+  
+  <p>
+    <img width="600" src="./docs/winCodeSign.png" alt="winCodeSign">
+    <img width="600" src="./docs/win-build-info.png" alt="win-build-info">
+  </p>
 
 #### `Electron` 打包相关
 
@@ -300,6 +302,12 @@
 - [create-release](https://github.com/actions/create-release)
 - [upload-release-asset](https://github.com/actions/upload-release-asset)
 
+- 设置环境变量`GH_TOKEN`
+
+  <p>
+  <img width="500" src="./docs/GH_TOKEN.jpg" alt="app.asar">
+  </p>
+
 - 该项目完整配置
 
   ```yaml
@@ -315,6 +323,7 @@
       name: node版本 ${{ matrix.node_version }} 操作系统 ${{ matrix.os }}
       runs-on: ${{ matrix.os }}
 
+      # 环境运行矩阵，会同时在mac、windows、ubuntu下运行
       strategy:
         matrix:
           node-version: [10.x]
