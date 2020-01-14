@@ -14,8 +14,10 @@ const fs = window.require('fs');
 const uuidV4 = require('uuid/v4');
 const mkdirp = require('mkdirp');
 const sharp = window.require('sharp');
+const tinify = window.require("tinify");
 const Store = window.require('electron-store');
 const {schemaConfig} = require('./config.js');
+const {flattenArr, objToArr, firstLastArr} = require('./util');
 
 require('./styles/index.css');
 
@@ -28,23 +30,29 @@ console.log(`👋 electron version ${versionElectron}`);
 
 // 本地数据
 const settingsStore = new Store({name: 'Settings', schema: schemaConfig});
+
+console.log('------ config ------');
+console.log(settingsStore.get());
+console.log('------ config ------');
+
 settingsStore.clear();
 
 let filesMap = {};
 let compressing = false;
 
 // 默认保存到桌面
-let outPath = remote.app.getPath('desktop');
-// 默认输出到此文件夹
-const defaultOutDir = 'MokeCompress';
-// 默认压缩质量
-let quality = 70;
-// 是否压缩
-let noCompress = false;
-// 分组压缩 默认 6
-let chunkCount = 5;
-// resize width height
-let resizeWidth, resizeHeight;
+let outPath = settingsStore.get('outPath'),
+    // 默认压缩质量
+    quality = settingsStore.get('quality'),
+    // 是否压缩
+    noCompress = settingsStore.get('noCompress'),
+    // 分组压缩 默认 5
+    chunkCount = 5,
+    // resize width height
+    resizeWidth = Number(settingsStore.get('width')) || 0,
+    resizeHeight = Number(settingsStore.get('height')) || 0,
+    tinifyKey = settingsStore.get('tinifyKey'),
+    isTinify = settingsStore.get('isTinify');
 
 const defaultOpt = {
     quality: quality,
@@ -53,38 +61,23 @@ const defaultOpt = {
 
 const resizeOption = {};
 
-const flattenArr = (arr) => {
-    return arr.reduce((map, item) => {
-        map[item.id] = item;
-        return map
-    }, {})
-};
+function setSettings() {
+    outPath = settingsStore.get('outPath');
+    quality = settingsStore.get('quality');
+    noCompress = settingsStore.get('noCompress');
+    resizeWidth = Number(settingsStore.get('width')) || 0;
+    resizeHeight = Number(settingsStore.get('height')) || 0;
+    tinifyKey = settingsStore.get('tinifyKey');
+    isTinify = settingsStore.get('isTinify');
 
-const objToArr = (obj) => {
-    return Object.keys(obj).map(key => obj[key]);
-};
-
-const chunk = (arr, size) => {
-    return Array.from({
-            length: Math.ceil(arr.length / size)
-        }, (v, i) =>
-            arr.slice(i * size, i * size + size)
-    );
-};
-
-const firstLastArr = (arr, size) => {
-    let first = [],
-        last = [];
-    (arr || []).forEach(((value, index) => {
-        if (index < size) first = [...first, value];
-        else last = [...last, value];
-    }));
-
-    return {
-        first,
-        last
-    }
-};
+    console.log('------ 压缩配置 ------');
+    console.log('压缩质量: ', quality);
+    console.log('调整大小resize: ', `${resizeWidth} x ${resizeHeight}`);
+    console.log('noCompress：', noCompress);
+    console.log('tinifyKey：', tinifyKey);
+    console.log('isTinify：', isTinify);
+    console.log('------ 压缩配置 ------');
+}
 
 function flattenSize(size) {
     if (size > 1024 * 1024) return `${(size / 1024 / 1024).toFixed(2)}MB`;
@@ -168,7 +161,7 @@ function render(files) {
 function compressInfo(file, resolve) {
     return ({data, info}) => {
 
-        const out = path.join(outPath, defaultOutDir, file.name);
+        const out = path.join(outPath, file.name);
 
         fs.writeFileSync(out, data);
 
@@ -236,7 +229,7 @@ function compressDone() {
             event.preventDefault();
 
             // 打开文件保存位置
-            shell.showItemInFolder(path.join(outPath, defaultOutDir, files[0].name));
+            shell.showItemInFolder(path.join(outPath, files[0].name));
         }
     }
 }
@@ -252,32 +245,7 @@ function compressBtn() {
     }
 }
 
-// 重试
-window.timeout = null;
-
-function compressRetry(id) {
-    const file = filesMap[id];
-    filesMap[id] = {
-        ...file,
-        compress: true,
-        done: false,
-        error: false,
-        compressSize: null
-    };
-
-    render(filesMap);
-
-    clearTimeout(window.timeout);
-
-    window.timeout = setTimeout(() => {
-        compressOne(file);
-    }, 500);
-
-}
-
-window.compressRetry = compressRetry;
-
-async function compressOne(file) {
+function compressOne(file) {
 
     if (resizeWidth) resizeOption.width = resizeWidth;
     if (resizeHeight) resizeOption.height = resizeHeight;
@@ -320,32 +288,35 @@ async function compressOne(file) {
     });
 }
 
-function compress() {
+// 重试
+window.timeout = null;
 
-    const files = objToArr(filesMap);
-
-    if (!files.length) return;
-    if (compressing) return;
-    if (noCompress && !resizeWidth && !resizeHeight) {
-        remote.dialog.showErrorBox('提示', '请正确设置压缩配置');
-        return;
-    }
-    compressing = true;
-
-    Object.values(filesMap).forEach(file => {
-        filesMap[file.id] = {
-            ...file,
-            compress: true,
-            done: false,
-            error: false,
-            compressSize: null
-        }
-    });
+function compressRetry(id) {
+    const file = filesMap[id];
+    filesMap[id] = {
+        ...file,
+        compress: true,
+        done: false,
+        error: false,
+        compressSize: null
+    };
 
     render(filesMap);
 
-    const firstLast = firstLastArr(files, 3);
+    clearTimeout(window.timeout);
 
+    window.timeout = setTimeout(() => {
+        compressOne(file);
+    }, 500);
+
+}
+
+window.compressRetry = compressRetry;
+
+/**
+ * 普通的压缩方式: 使用sharp的方式
+ */
+function compressCommon(firstLast) {
     const fn1 = () => {
         const one = firstLast.last.shift();
 
@@ -371,6 +342,78 @@ function compress() {
         Promise.allSettled(runFnGroup).then(() => {
             compressDone();
         });
+    }
+}
+
+/**
+ * 使用tinify的方式
+ */
+function compressTinify(firstLast) {
+    console.log('--');
+    tinify.key = tinifyKey;
+    tinify.validate(function (err) {
+        if (err) throw err;
+
+        let compressionsThisMonth = tinify.compressionCount;
+        console.log(compressionsThisMonth);
+    });
+
+    tinify.fromFile("unoptimized.jpg").toFile("optimized.jpg").then((data) => {
+        console.log(data);
+    }, (err) => {
+        if (err instanceof tinify.AccountError) {
+            console.log("The error message is: " + err.message);
+            // Verify your API key and account limit.
+        } else if (err instanceof tinify.ClientError) {
+            // Check your source image and request options.
+        } else if (err instanceof tinify.ServerError) {
+            // Temporary issue with the Tinify API.
+        } else if (err instanceof tinify.ConnectionError) {
+            // A network connection error occurred.
+        } else {
+            // Something else went wrong, unrelated to the Tinify API.
+        }
+    });
+
+}
+
+function compress() {
+
+    const files = objToArr(filesMap);
+
+    if (!files.length) return;
+    if (compressing) return;
+    if (noCompress && !isTinify && !resizeWidth && !resizeHeight) {
+        remote.dialog.showErrorBox('提示', '请正确设置压缩配置');
+        return;
+    }
+    if (isTinify && !tinifyKey) {
+        remote.dialog.showErrorBox('提示', '请设置tinify key');
+        return;
+    }
+
+    compressing = true;
+
+    mkdirp.sync(outPath || settingsStore.get('outPath'));
+
+    Object.values(filesMap).forEach(file => {
+        filesMap[file.id] = {
+            ...file,
+            compress: true,
+            done: false,
+            error: false,
+            compressSize: null
+        }
+    });
+
+    render(filesMap);
+
+    const firstLast = firstLastArr(files, chunkCount);
+
+    if (isTinify) {
+        compressTinify(firstLast);
+    } else {
+        compressCommon(firstLast);
     }
 }
 
@@ -405,24 +448,18 @@ document.querySelector('#setting').addEventListener('click', () => {
     ipcRenderer.send('open-settings-window');
 });
 
-ipcRenderer.on('settings', (event, args) => {
-    quality = Number(args.quality) || quality;
-    noCompress = Boolean(args.noCompress);
-    outPath = args.outPath || outPath;
-    resizeWidth = Number(args.width) || null;
-    resizeHeight = Number(args.height) || null;
-});
+// ipcRenderer.on('settings', (event, args) => {
+//     quality = Number(args.quality) || quality;
+//     noCompress = Boolean(args.noCompress);
+//     outPath = args.outPath || outPath;
+//     resizeWidth = Number(args.width) || null;
+//     resizeHeight = Number(args.height) || null;
+// });
 
 document.querySelector('#compress').addEventListener('click', () => {
-    const out = path.join(outPath, defaultOutDir);
-    mkdirp.sync(out);
-
-    console.log('------ 压缩配置 ------');
-    console.log('压缩质量: ', quality);
-    console.log('调整大小resize: ', `${resizeWidth} x ${resizeHeight}`);
-    console.log('------ 压缩配置 ------');
-
     console.log(settingsStore.get());
 
-    compress()
+    setSettings();
+
+    compress();
 });

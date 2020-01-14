@@ -21,6 +21,43 @@ function serializeArray(_this) {
     return result
 }
 
+const chunk = (arr, size) => {
+    return Array.from({
+            length: Math.ceil(arr.length / size)
+        }, (v, i) =>
+            arr.slice(i * size, i * size + size)
+    );
+};
+
+const flattenArr = (arr) => {
+    return arr.reduce((map, item) => {
+        map[item.id] = item;
+        return map
+    }, {})
+};
+
+const objToArr = (obj) => {
+    return Object.keys(obj).map(key => obj[key]);
+};
+
+const firstLastArr = (arr, size) => {
+    let first = [],
+        last = [];
+    (arr || []).forEach(((value, index) => {
+        if (index < size) first = [...first, value];
+        else last = [...last, value];
+    }));
+
+    return {
+        first,
+        last
+    }
+};
+
 module.exports = {
-    serializeArray
+    serializeArray,
+    chunk,
+    flattenArr,
+    objToArr,
+    firstLastArr
 };

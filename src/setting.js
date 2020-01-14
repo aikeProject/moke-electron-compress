@@ -5,17 +5,12 @@
  */
 
 const {ipcRenderer, remote, shell} = window.require('electron');
-const path = window.require('path');
 const {serializeArray} = require('./util.js');
-const {schemaConfig, settingsKeyType} = require('./config.js');
+const {schemaConfig, settingsKeyType, outDefault} = require('./config.js');
 const Store = window.require('electron-store');
 
 require('./styles/setting.css');
 
-// 默认保存到桌面
-let outPath = remote.app.getPath('desktop');
-// 默认输出到此文件夹
-const defaultOutDir = 'MokeCompress';
 // 本地数据
 const settingsStore = new Store({name: 'Settings', schema: schemaConfig});
 const sourceStore = new Store({name: 'source'});
@@ -55,7 +50,7 @@ document.querySelector('#select').addEventListener('click', () => {
         properties: ['openDirectory'],
         message: '选择压缩图片存储路径'
     }).then(({filePaths}) => {
-        document.querySelector('#outPath').value = filePaths[0] || path.join(outPath, defaultOutDir);
+        document.querySelector('#outPath').value = filePaths[0] || outDefault;
     });
 
 });
@@ -76,7 +71,11 @@ document.querySelector('#settingSave').addEventListener('click', () => {
     let result = serializeArray(document.querySelector('#settings'));
     console.log(result);
     result = result.reduce((pre, item) => {
-        // settingsStore.set(item.name, item.value);
+
+        if (settingsKeyType[item.name] === 'disabled') {
+            return {...pre, [item.name]: Boolean(item.value)};
+        }
+
         return {...pre, [item.name]: item.value.trim()};
     }, {});
 
@@ -87,7 +86,7 @@ document.querySelector('#settingSave').addEventListener('click', () => {
     const tinifyKeyArray = getTinifyKeyArray();
 
     sourceStore.set('tinifyKey', tinifyKeyArray);
-    // remote.getCurrentWindow().close();
+    remote.getCurrentWindow().close();
 });
 
 document.querySelector('#saveTinifyKey').addEventListener('click', () => {

@@ -5,11 +5,14 @@
  */
 
 const {remote} = window.require('electron');
+
+
 // 默认保存到桌面
-let outPath = remote.app.getPath('desktop');
+let outPathDefault = remote.app.getPath('desktop');
 // 默认输出到此文件夹
 const defaultOutDir = 'MokeCompress';
 const path = window.require('path');
+const outDefault = path.join(outPathDefault, defaultOutDir);
 
 /**
  * 表单设置时，数据对应的值设置方式
@@ -24,8 +27,6 @@ const settingsKeyType = {
     noCompress: 'disabled',
     isTinify: 'disabled'
 };
-
-const out = path.join(outPath, defaultOutDir);
 
 const schemaConfig = {
     quality: {
@@ -42,24 +43,25 @@ const schemaConfig = {
     },
     outPath: {
         type: 'string',
-        default: out
+        default: outDefault
     },
     tinifyKey: {
         type: 'string',
         default: ''
     },
     noCompress: {
-        type: 'string',
-        default: ''
+        type: 'boolean',
+        default: false
     },
     isTinify: {
-        type: 'string',
-        default: ''
-    }
+        type: 'boolean',
+        default: false
+    },
 };
 
 
 module.exports = {
     settingsKeyType,
-    schemaConfig
+    schemaConfig,
+    outDefault
 };
