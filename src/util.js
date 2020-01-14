@@ -54,10 +54,17 @@ const firstLastArr = (arr, size) => {
     }
 };
 
+function flattenSize(size) {
+    if (size > 1024 * 1024) return `${(size / 1024 / 1024).toFixed(2)}MB`;
+
+    return `${(size / 1024).toFixed(2)}kb`
+}
+
 module.exports = {
     serializeArray,
     chunk,
     flattenArr,
     objToArr,
-    firstLastArr
+    firstLastArr,
+    flattenSize
 };

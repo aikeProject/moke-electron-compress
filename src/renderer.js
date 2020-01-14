@@ -17,7 +17,7 @@ const sharp = window.require('sharp');
 const tinify = window.require("tinify");
 const Store = window.require('electron-store');
 const {schemaConfig} = require('./config.js');
-const {flattenArr, objToArr, firstLastArr} = require('./util');
+const {flattenArr, objToArr, firstLastArr, flattenSize} = require('./util');
 
 require('./styles/index.css');
 
@@ -77,12 +77,6 @@ function setSettings() {
     console.log('tinifyKey：', tinifyKey);
     console.log('isTinify：', isTinify);
     console.log('------ 压缩配置 ------');
-}
-
-function flattenSize(size) {
-    if (size > 1024 * 1024) return `${(size / 1024 / 1024).toFixed(2)}MB`;
-
-    return `${(size / 1024).toFixed(2)}kb`
 }
 
 function filterSource(source) {
@@ -193,7 +187,6 @@ function compressError(file, reject) {
                 error: true
             }
         };
-        compressing = false;
 
         console.log('error...', file.name);
 
@@ -345,22 +338,31 @@ function compressCommon(firstLast) {
     }
 }
 
-/**
- * 使用tinify的方式
- */
-function compressTinify(firstLast) {
-    console.log('--');
-    tinify.key = tinifyKey;
-    tinify.validate(function (err) {
-        if (err) throw err;
+async function compressOneTinify(file) {
 
-        let compressionsThisMonth = tinify.compressionCount;
-        console.log(compressionsThisMonth);
-    });
+    try {
 
-    tinify.fromFile("unoptimized.jpg").toFile("optimized.jpg").then((data) => {
-        console.log(data);
-    }, (err) => {
+        const readFileBuffer = await fs.promises.readFile(file.path);
+        const tinifyData = await tinify.fromBuffer(readFileBuffer);
+        const writeTinifyBuffer = await tinifyData.toBuffer();
+        await fs.promises.writeFile(path.join(outPath, file.name), writeTinifyBuffer);
+
+        filesMap = {
+            ...filesMap,
+            [file.id]: {
+                ...file,
+                compressSize: writeTinifyBuffer.byteLength,
+                compress: false,
+                done: true,
+            }
+        };
+
+        console.log(file.name);
+
+        render(filesMap);
+
+        return Promise.resolve(filesMap, writeTinifyBuffer);
+    } catch (err) {
         if (err instanceof tinify.AccountError) {
             console.log("The error message is: " + err.message);
             // Verify your API key and account limit.
@@ -373,8 +375,109 @@ function compressTinify(firstLast) {
         } else {
             // Something else went wrong, unrelated to the Tinify API.
         }
-    });
 
+        filesMap = {
+            ...filesMap,
+            [file.id]: {
+                ...file,
+                done: true,
+                error: true
+            }
+        };
+
+        console.log(err);
+        console.log('error...', file.name);
+
+        render(filesMap);
+
+        return Promise.reject(err);
+    }
+
+
+    // fs.readFile(firstLast.first[0].path, function (err, sourceData) {
+    //     if (err) throw err;
+    //     tinify.fromBuffer(sourceData).toBuffer(function (err, resultData) {
+    //         if (err) throw err;
+    //         // byteLength
+    //         console.log(resultData);
+    //         // console.log(Buffer.byteLength(resultData));
+    //         console.log(resultData.length);
+    //         console.log(resultData.byteLength);
+    //         fs.writeFile(path.join(outPath, firstLast.first[0].name), resultData, function (err, data) {
+    //             console.log(err);
+    //             console.log(data);
+    //         })
+    //         // ...
+    //     });
+    // });
+
+    // tinify
+    //     .fromFile(firstLast.first[0].path)
+    //     .toFile(path.join(outPath, firstLast.first[0].name))
+    //     .then((data) => {
+    //         console.log(data);
+    //     }, (err) => {
+    //         if (err instanceof tinify.AccountError) {
+    //             console.log("The error message is: " + err.message);
+    //             // Verify your API key and account limit.
+    //         } else if (err instanceof tinify.ClientError) {
+    //             // Check your source image and request options.
+    //         } else if (err instanceof tinify.ServerError) {
+    //             // Temporary issue with the Tinify API.
+    //         } else if (err instanceof tinify.ConnectionError) {
+    //             // A network connection error occurred.
+    //         } else {
+    //             // Something else went wrong, unrelated to the Tinify API.
+    //         }
+    //     });
+}
+
+/**
+ * 使用tinify的方式
+ */
+async function compressTinify(firstLast) {
+    tinify.key = tinifyKey;
+    const errValidate = await tinify.validate();
+    let compressionsThisMonth = 500 - tinify.compressionCount;
+
+    if (errValidate) {
+        remote.dialog.showErrorBox('提示', 'tinify验证错误');
+        return;
+    }
+
+    if (!compressionsThisMonth) {
+        remote.dialog.showErrorBox('提示', '当前使用tinify key次数不足');
+        return;
+    }
+
+    console.log(`tinify key： ${tinifyKey} 剩余次数，${compressionsThisMonth}`);
+
+    const fn = () => {
+        const one = firstLast.last.shift();
+
+        if (one) {
+            compressOneTinify(one).finally(() => {
+                fn();
+
+                compressDone();
+            });
+        }
+    };
+
+    if (firstLast.first.length) {
+
+        let runFnGroup = firstLast.first.map(file => {
+            return compressOneTinify(file).finally(() => {
+                fn();
+            });
+        });
+
+        // allSettled 只有等到所有这些参数实例都返回结果
+        // 不管是fulfilled还是rejected，包装实例才会结束
+        Promise.allSettled(runFnGroup).then(() => {
+            compressDone();
+        });
+    }
 }
 
 function compress() {
