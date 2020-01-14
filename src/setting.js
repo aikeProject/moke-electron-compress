@@ -69,17 +69,21 @@ document.querySelector('#noCompress').addEventListener('change', (e) => {
 document.querySelector('#settingSave').addEventListener('click', () => {
 
     let result = serializeArray(document.querySelector('#settings'));
-    console.log(result);
+
     result = result.reduce((pre, item) => {
 
-        if (settingsKeyType[item.name] === 'disabled') {
+        if (settingsKeyType[item.name] === 'checked') {
             return {...pre, [item.name]: Boolean(item.value)};
         }
 
         return {...pre, [item.name]: item.value.trim()};
     }, {});
 
-    // ipcRenderer.send('settings', result);
+    (Object.keys(settingsKeyType)).map((key) => {
+        if (!(key in result) && settingsKeyType[key] === 'checked') {
+            result[key] = false;
+        }
+    });
 
     settingsStore.set(result);
 

@@ -24,8 +24,8 @@ const settingsKeyType = {
     height: 'value',
     outPath: 'value',
     tinifyKey: 'value',
-    noCompress: 'disabled',
-    isTinify: 'disabled'
+    noCompress: 'checked',
+    isTinify: 'checked'
 };
 
 const schemaConfig = {

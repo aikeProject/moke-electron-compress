@@ -16,8 +16,15 @@ const mkdirp = require('mkdirp');
 const sharp = window.require('sharp');
 const tinify = window.require("tinify");
 const Store = window.require('electron-store');
-const {schemaConfig} = require('./config.js');
-const {flattenArr, objToArr, firstLastArr, flattenSize} = require('./util');
+const {
+    schemaConfig
+} = require('./config.js');
+const {
+    flattenArr,
+    objToArr,
+    firstLastArr,
+    flattenSize
+} = require('./util');
 
 require('./styles/index.css');
 
@@ -29,7 +36,10 @@ console.log(`👋 node version ${versionNode}`);
 console.log(`👋 electron version ${versionElectron}`);
 
 // 本地数据
-const settingsStore = new Store({name: 'Settings', schema: schemaConfig});
+const settingsStore = new Store({
+    name: 'Settings',
+    schema: schemaConfig
+});
 
 console.log('------ config ------');
 console.log(settingsStore.get());
@@ -55,11 +65,9 @@ let outPath = settingsStore.get('outPath'),
     isTinify = settingsStore.get('isTinify');
 
 const defaultOpt = {
-    quality: quality,
+    quality: Number(quality),
     chromaSubsampling: '4:4:4'
 };
-
-const resizeOption = {};
 
 function setSettings() {
     outPath = settingsStore.get('outPath');
@@ -70,13 +78,19 @@ function setSettings() {
     tinifyKey = settingsStore.get('tinifyKey');
     isTinify = settingsStore.get('isTinify');
 
-    console.log('------ 压缩配置 ------');
-    console.log('压缩质量: ', quality);
-    console.log('调整大小resize: ', `${resizeWidth} x ${resizeHeight}`);
-    console.log('noCompress：', noCompress);
-    console.log('tinifyKey：', tinifyKey);
-    console.log('isTinify：', isTinify);
-    console.log('------ 压缩配置 ------');
+    defaultOpt.quality = Number(quality);
+
+    console.log(`
+    ------ 压缩配置 ------
+    
+    压缩质量quality:  ${quality}
+    调整大小resize: ${resizeWidth} x ${resizeHeight}
+    noCompress: ${noCompress}
+    tinifyKey: ${tinifyKey}
+    isTinify: ${isTinify}
+    
+    ------ 压缩配置 ------
+    `)
 }
 
 function filterSource(source) {
@@ -152,49 +166,9 @@ function render(files) {
     compressBtn()
 }
 
-function compressInfo(file, resolve) {
-    return ({data, info}) => {
-
-        const out = path.join(outPath, file.name);
-
-        fs.writeFileSync(out, data);
-
-        filesMap = {
-            ...filesMap,
-            [file.id]: {
-                ...file,
-                compressSize: info.size,
-                compress: false,
-                done: true,
-            }
-        };
-
-        console.log(file.name);
-
-        render(filesMap);
-
-        resolve(filesMap);
-    }
-}
-
-function compressError(file, reject) {
-    return (err) => {
-        filesMap = {
-            ...filesMap,
-            [file.id]: {
-                ...file,
-                done: true,
-                error: true
-            }
-        };
-
-        console.log('error...', file.name);
-
-        render(filesMap);
-        reject(err)
-    }
-}
-
+/**
+ * 检查是否都执行完毕了
+ */
 function compressDone() {
 
     const allDone = Object.values(filesMap).every(file => file.done);
@@ -238,28 +212,43 @@ function compressBtn() {
     }
 }
 
-function compressOne(file) {
+const resizeOption = {};
+
+async function compressOne(file) {
 
     if (resizeWidth) resizeOption.width = resizeWidth;
     if (resizeHeight) resizeOption.height = resizeHeight;
 
-    return new Promise((resolve, reject) => {
-        let fileData = sharp(file.path);
+    filesMap[file.id] = {
+        ...file,
+        compress: true,
+        done: false,
+        error: false,
+        compressSize: null
+    };
 
+    try {
+        let sharpData = await sharp(file.path);
         const type = file.type;
 
-        if (!type) return;
-
         if (!noCompress) {
+            
             switch (type) {
-                case "png":
-                    fileData = fileData
-                        .png(defaultOpt);
-                    break;
-                case "jpg":
+                case ".png":
+
+                    // BUG: https://github.com/lovell/sharp/issues?utf8=%E2%9C%93&q=libimagequant
+                    // libvips: https://libvips.github.io/libvips/install.html
+                    // 后续修改吧，png调整图片质量需要安装支持的 libimagequant 的 libvips
+                    // 默认安装的sharp中的libvips，并不包括 libimagequant
+                    // 目前 png 就先采用jpg的方式压缩吧...
+
+                    // sharpData = await sharpData
+                    //     .png({palette: true, ...defaultOpt});
+                    // break;
+                case ".jpg":
                     ;
-                case "jpeg":
-                    fileData = fileData
+                case ".jpeg":
+                    sharpData = await sharpData
                         .jpeg(defaultOpt);
                     break;
                 default:
@@ -269,16 +258,54 @@ function compressOne(file) {
 
         // 调整图片大小
         if (resizeOption.width || resizeOption.height) {
-            fileData = fileData.resize(resizeOption)
+            sharpData = await sharpData.resize(resizeOption)
         }
 
-        // toBuffer 转换成buffer之后，拿到压缩后的信息，在保存到文件
-        // toFile windows下输出文件，info信息里没有压缩后的size字段
-        fileData
-            .toBuffer({resolveWithObject: true})
-            .then(compressInfo(file, resolve))
-            .catch(compressError(file, reject));
-    });
+        const {
+            data,
+            info
+        } = await sharpData.toBuffer({
+            resolveWithObject: true
+        });
+
+        const out = path.join(outPath, file.name);
+
+        fs.writeFileSync(out, data);
+
+        filesMap = {
+            ...filesMap,
+            [file.id]: {
+                ...file,
+                compressSize: info.size,
+                compress: false,
+                done: true,
+            }
+        };
+
+        console.log(file.name);
+
+        render(filesMap);
+
+        return Promise.resolve(filesMap, data, info);
+
+    } catch (err) {
+
+        filesMap = {
+            ...filesMap,
+            [file.id]: {
+                ...file,
+                done: true,
+                error: true
+            }
+        };
+
+        console.log(err);
+        console.log('error...', file.name);
+
+        render(filesMap);
+
+        return Promise.reject(err);
+    };
 }
 
 // 重试
@@ -342,6 +369,14 @@ async function compressOneTinify(file) {
 
     try {
 
+        filesMap[file.id] = {
+            ...file,
+            compress: true,
+            done: false,
+            error: false,
+            compressSize: null
+        };
+
         const readFileBuffer = await fs.promises.readFile(file.path);
         const tinifyData = await tinify.fromBuffer(readFileBuffer);
         const writeTinifyBuffer = await tinifyData.toBuffer();
@@ -392,44 +427,6 @@ async function compressOneTinify(file) {
 
         return Promise.reject(err);
     }
-
-
-    // fs.readFile(firstLast.first[0].path, function (err, sourceData) {
-    //     if (err) throw err;
-    //     tinify.fromBuffer(sourceData).toBuffer(function (err, resultData) {
-    //         if (err) throw err;
-    //         // byteLength
-    //         console.log(resultData);
-    //         // console.log(Buffer.byteLength(resultData));
-    //         console.log(resultData.length);
-    //         console.log(resultData.byteLength);
-    //         fs.writeFile(path.join(outPath, firstLast.first[0].name), resultData, function (err, data) {
-    //             console.log(err);
-    //             console.log(data);
-    //         })
-    //         // ...
-    //     });
-    // });
-
-    // tinify
-    //     .fromFile(firstLast.first[0].path)
-    //     .toFile(path.join(outPath, firstLast.first[0].name))
-    //     .then((data) => {
-    //         console.log(data);
-    //     }, (err) => {
-    //         if (err instanceof tinify.AccountError) {
-    //             console.log("The error message is: " + err.message);
-    //             // Verify your API key and account limit.
-    //         } else if (err instanceof tinify.ClientError) {
-    //             // Check your source image and request options.
-    //         } else if (err instanceof tinify.ServerError) {
-    //             // Temporary issue with the Tinify API.
-    //         } else if (err instanceof tinify.ConnectionError) {
-    //             // A network connection error occurred.
-    //         } else {
-    //             // Something else went wrong, unrelated to the Tinify API.
-    //         }
-    //     });
 }
 
 /**
@@ -450,7 +447,10 @@ async function compressTinify(firstLast) {
         return;
     }
 
-    console.log(`tinify key： ${tinifyKey} 剩余次数，${compressionsThisMonth}`);
+    console.log(`
+    tinify key： ${tinifyKey} 
+    剩余次数，${compressionsThisMonth}
+    `);
 
     const fn = () => {
         const one = firstLast.last.shift();
@@ -502,7 +502,7 @@ function compress() {
     Object.values(filesMap).forEach(file => {
         filesMap[file.id] = {
             ...file,
-            compress: true,
+            compress: false,
             done: false,
             error: false,
             compressSize: null
@@ -550,14 +550,6 @@ document.querySelector('.background-drop').addEventListener('click', () => {
 document.querySelector('#setting').addEventListener('click', () => {
     ipcRenderer.send('open-settings-window');
 });
-
-// ipcRenderer.on('settings', (event, args) => {
-//     quality = Number(args.quality) || quality;
-//     noCompress = Boolean(args.noCompress);
-//     outPath = args.outPath || outPath;
-//     resizeWidth = Number(args.width) || null;
-//     resizeHeight = Number(args.height) || null;
-// });
 
 document.querySelector('#compress').addEventListener('click', () => {
     console.log(settingsStore.get());
