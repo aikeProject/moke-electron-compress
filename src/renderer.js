@@ -42,7 +42,7 @@ const settingsStore = new Store({
 });
 
 console.log('------ config ------');
-console.log(settingsStore.get());
+console.table(settingsStore.get());
 console.log('------ config ------');
 
 settingsStore.clear();
@@ -227,24 +227,26 @@ async function compressOne(file) {
         compressSize: null
     };
 
+    render(filesMap);
+
     try {
         let sharpData = await sharp(file.path);
         const type = file.type;
 
         if (!noCompress) {
-            
+
             switch (type) {
                 case ".png":
 
-                    // BUG: https://github.com/lovell/sharp/issues?utf8=%E2%9C%93&q=libimagequant
-                    // libvips: https://libvips.github.io/libvips/install.html
-                    // 后续修改吧，png调整图片质量需要安装支持的 libimagequant 的 libvips
-                    // 默认安装的sharp中的libvips，并不包括 libimagequant
-                    // 目前 png 就先采用jpg的方式压缩吧...
+                // BUG: https://github.com/lovell/sharp/issues?utf8=%E2%9C%93&q=libimagequant
+                // libvips: https://libvips.github.io/libvips/install.html
+                // 后续修改吧，png调整图片质量需要安装支持的 libimagequant 的 libvips
+                // 默认安装的sharp中的libvips，并不包括 libimagequant
+                // 目前 png 就先采用jpg的方式压缩吧...
 
-                    // sharpData = await sharpData
-                    //     .png({palette: true, ...defaultOpt});
-                    // break;
+                // sharpData = await sharpData
+                //     .png({palette: true, ...defaultOpt});
+                // break;
                 case ".jpg":
                     ;
                 case ".jpeg":
@@ -305,7 +307,7 @@ async function compressOne(file) {
         render(filesMap);
 
         return Promise.reject(err);
-    };
+    }
 }
 
 // 重试
@@ -313,15 +315,6 @@ window.timeout = null;
 
 function compressRetry(id) {
     const file = filesMap[id];
-    filesMap[id] = {
-        ...file,
-        compress: true,
-        done: false,
-        error: false,
-        compressSize: null
-    };
-
-    render(filesMap);
 
     clearTimeout(window.timeout);
 
@@ -331,7 +324,20 @@ function compressRetry(id) {
 
 }
 
-window.compressRetry = compressRetry;
+
+/**
+ * tinif压缩错误重试
+ * @param id
+ */
+function compressTinifyRetry(id) {
+    const file = filesMap[id];
+
+    clearTimeout(window.timeout);
+
+    window.timeout = setTimeout(() => {
+        compressOneTinify(file);
+    }, 500);
+}
 
 /**
  * 普通的压缩方式: 使用sharp的方式
@@ -377,8 +383,29 @@ async function compressOneTinify(file) {
             compressSize: null
         };
 
+        render(filesMap);
+
         const readFileBuffer = await fs.promises.readFile(file.path);
-        const tinifyData = await tinify.fromBuffer(readFileBuffer);
+        let tinifyData = await tinify.fromBuffer(readFileBuffer);
+
+        if (resizeWidth && resizeHeight) {
+            tinifyData = await tinifyData.resize({
+                method: "fit",
+                width: resizeWidth,
+                height: resizeHeight
+            });
+        } else if (resizeWidth) {
+            tinifyData = await tinifyData.resize({
+                method: "scale",
+                width: resizeWidth
+            });
+        } else if (resizeHeight) {
+            tinifyData = await tinifyData.resize({
+                method: "scale",
+                height: resizeHeight
+            });
+        }
+
         const writeTinifyBuffer = await tinifyData.toBuffer();
         await fs.promises.writeFile(path.join(outPath, file.name), writeTinifyBuffer);
 
@@ -474,6 +501,7 @@ async function compressTinify(firstLast) {
 
         // allSettled 只有等到所有这些参数实例都返回结果
         // 不管是fulfilled还是rejected，包装实例才会结束
+        // http://es6.ruanyifeng.com/#docs/promise
         Promise.allSettled(runFnGroup).then(() => {
             compressDone();
         });
@@ -514,8 +542,10 @@ function compress() {
     const firstLast = firstLastArr(files, chunkCount);
 
     if (isTinify) {
+        window.compressRetry = compressRetry;
         compressTinify(firstLast);
     } else {
+        window.compressRetry = compressTinifyRetry;
         compressCommon(firstLast);
     }
 }
@@ -552,7 +582,9 @@ document.querySelector('#setting').addEventListener('click', () => {
 });
 
 document.querySelector('#compress').addEventListener('click', () => {
-    console.log(settingsStore.get());
+    console.log('------ config ------');
+    console.table(settingsStore.get());
+    console.log('------ config ------');
 
     setSettings();
 

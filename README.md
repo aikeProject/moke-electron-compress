@@ -26,6 +26,7 @@
 
 - 可以通过调整图片质量压缩图片
 - 可以调整图片实际宽度和高度
+- 支持`tinify`上传压缩图片，[tinify](https://tinypng.com/developers/reference/nodejs)
 
 #### `Electron` 相关知识
 
@@ -55,25 +56,6 @@
     - `remote.app.getPath('desktop')`, 获取路径 
     - [详见](https://electronjs.org/docs/api/app#appgetpathname)
 
-#### 压缩图片使用的工具 `sharp` [sharp](https://github.com/lovell/sharp)
-
-- `sharp`在`electron`中使用，需要重新编译
-- 第一种方法：[electron-rebuild](https://electronjs.org/docs/tutorial/using-native-node-modules#%E4%B8%BA-electron-%E5%AE%89%E8%A3%85%E5%B9%B6%E9%87%8D%E6%96%B0%E7%BC%96%E8%AF%91%E6%A8%A1%E5%9D%97)
-
-  ```
-  package.json 配置
-  "scripts": {
-      "postinstall": "npx electron-rebuild"
-  }
-
-  在npm install之后，执行electron-rebuild进行重新编译即可，electron-rebuild只会重新编译，dependencies中的包
-  ```
-
-- 第二种方法：
-
-  - [node-gyp手动编译](https://electronjs.org/docs/tutorial/using-native-node-modules#%E4%B8%BA-electron-%E5%AE%89%E8%A3%85%E5%B9%B6%E9%87%8D%E6%96%B0%E7%BC%96%E8%AF%91%E6%A8%A1%E5%9D%97)参考
-  - [preinstall.sh](preinstall.sh) 手动编译脚本，在`npm install`之前就下载编译好sharp
-
 #### 开发环境搭建 [参考项目](https://github.com/electron-react-boilerplate/electron-react-boilerplate)
 
 - `npm run start-renderer-dev` 启动渲染进程
@@ -95,6 +77,33 @@
 - `npm run pack` 用于分析
 - `npm run dist` 打包成安装包
 - `npm run release` 打包并发布
+
+#### 压缩图片使用的工具 `sharp` [sharp](https://github.com/lovell/sharp)
+
+- `sharp`在`electron`中使用，需要重新编译
+- 第一种方法：[electron-rebuild](https://electronjs.org/docs/tutorial/using-native-node-modules#%E4%B8%BA-electron-%E5%AE%89%E8%A3%85%E5%B9%B6%E9%87%8D%E6%96%B0%E7%BC%96%E8%AF%91%E6%A8%A1%E5%9D%97)
+
+  ```
+  package.json 配置
+  "scripts": {
+      "postinstall": "npx electron-rebuild"
+  }
+
+  在npm install之后，执行electron-rebuild进行重新编译即可，electron-rebuild只会重新编译，dependencies中的包
+  ```
+
+- 第二种方法：
+
+  - [node-gyp手动编译](https://electronjs.org/docs/tutorial/using-native-node-modules#%E4%B8%BA-electron-%E5%AE%89%E8%A3%85%E5%B9%B6%E9%87%8D%E6%96%B0%E7%BC%96%E8%AF%91%E6%A8%A1%E5%9D%97)参考
+  - [preinstall.sh](preinstall.sh) 手动编译脚本，在`npm install`之前就下载编译好sharp
+
+##### `tinify` 的使用
+
+- `tinify api` [详见](https://tinypng.com/developers/reference/nodejs)
+
+```
+npm install --save tinify
+```
 
 ##### 本地开发时的一些问题
 
@@ -351,7 +360,7 @@
 
 - 拖放(Drag 与 drop)
   - [详见](https://www.cnblogs.com/sqh17/p/8676983.html)
-  - [文档](https://developer.mozilla.org/zh-CN/docs/Web/API/HTML_Drag_and_Drop_API)<br/>
+  - [文档](https://developer.mozilla.org/zh-CN/docs/Web/API/HTML_Drag_and_Drop_API)
   - [浏览器兼容性](https://www.caniuse.com/#feat=dragndrop)
 
   ```text
@@ -383,3 +392,7 @@
       tag: 赋予通知一个ID，以便在必要的时候对通知进行刷新、替换或移除。
       icon: 一个图片的URL，将被用于显示通知的图标。
   ```
+
+#### Note
+
+- [sharp调整png quality缺少libimagequant问题](https://github.com/lovell/sharp/issues?utf8=%E2%9C%93&q=libimagequant)
