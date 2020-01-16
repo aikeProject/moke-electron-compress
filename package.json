@@ -1,6 +1,6 @@
 {
   "name": "moke-compress",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "electron构建的简单压缩工具",
   "main": "build/main.js",
   "scripts": {
